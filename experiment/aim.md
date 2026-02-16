@@ -1,1 +1,3 @@
-### Aim of the experiment
+## Aim
+
+* To Explore UE Subscriber Profile management via UDM/UDR. 
