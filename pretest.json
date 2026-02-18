@@ -1,0 +1,260 @@
+{
+  "version": 2.0,
+  "questions": [
+    {
+      "question": "What is the primary role of the Unified Data Management (UDM) in the 5G Core network?",
+      "answers": {
+        "a": "To select the physical network slice instance for the UE's session.",
+        "b": "To permanently store all subscriber profiles and policy data in a high-availability database.",
+        "c": "To manage and process requests for subscriber data, handling tasks like authentication vector generation and session management logic.",
+        "d": "To directly assign IP addresses to the User Equipment (UE) during PDU session establishment."
+      },
+      "explanations": {
+        "a": "Incorrect. Slice instance selection is not a UDM function.",
+        "b": "Incorrect. Persistent storage is handled by the UDR.",
+        "c": "Correct. UDM processes subscriber data requests and authentication-related logic.",
+        "d": "Incorrect. IP address assignment is handled by SMF/UPF."
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "During a UE registration attempt, the AMF needs to get subscriber information. What is the correct data flow sequence?",
+      "answers": {
+        "a": "AMF requests data from UDM, which fetches the required data from UDR.",
+        "b": "UDM proactively sends all subscriber data to AMF upon detecting a new UE.",
+        "c": "AMF requests data from UDR, which then asks UDM for processing.",
+        "d": "AMF, UDM, and UDR are all queried simultaneously by the core network."
+      },
+      "explanations": {
+        "a": "Correct. AMF queries UDM, and UDM retrieves data from UDR.",
+        "b": "Incorrect. UDM does not push data proactively.",
+        "c": "Incorrect. AMF does not directly query the UDR.",
+        "d": "Incorrect. Queries follow a defined service-based flow."
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "A subscriber profile in the UDR contains 'SM Data'. What kind of information is included in this category?",
+      "answers": {
+        "a": "A list of allowed S-NSSAIs (Slice/Service Type and Slice Differentiator).",
+        "b": "A list of allowed Data Network Names (DNNs) and session continuity preferences.",
+        "c": "Allowed access types (3GPP, non-3GPP) and roaming restrictions.",
+        "d": "Authentication keys (K, OPc) and sequence numbers (SQN)."
+      },
+      "explanations": {
+        "a": "Incorrect. This belongs to Network Slice Subscription data.",
+        "b": "Correct. SM Data includes DNNs and session-related rules.",
+        "c": "Incorrect. This is part of Access and Mobility data.",
+        "d": "Incorrect. This belongs to authentication data."
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "If an operator changes a subscriber's authentication key (K) in the UDR, what is the most likely immediate consequence for the user?",
+      "answers": {
+        "a": "The PDU session will be rejected by the SMF due to a DNN mismatch.",
+        "b": "The UE's data speeds (AMBR) will be reduced to a default value.",
+        "c": "The UE will fail the authentication procedure during its next registration attempt.",
+        "d": "The UE will be assigned to an incorrect network slice."
+      },
+      "explanations": {
+        "a": "Incorrect. DNN mismatch is unrelated to authentication keys.",
+        "b": "Incorrect. AMBR changes do not result from key updates.",
+        "c": "Correct. UE authentication will fail if keys are not synchronized.",
+        "d": "Incorrect. Slice selection is unrelated to authentication keys."
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Which network function is responsible for generating 5G-AKA authentication vectors and providing them to the AUSF?",
+      "answers": {
+        "a": "UDR (Unified Data Repository)",
+        "b": "AMF (Access and Mobility Management Function)",
+        "c": "UDM (Unified Data Management)",
+        "d": "AUSF (Authentication Server Function)"
+      },
+      "explanations": {
+        "a": "Incorrect. UDR stores data but does not generate vectors.",
+        "b": "Incorrect. AMF only requests authentication.",
+        "c": "Correct. UDM generates authentication vectors.",
+        "d": "Incorrect. AUSF validates vectors but does not generate them."
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "What is the primary function of the Unified Data Repository (UDR) within the 5G Core?",
+      "answers": {
+        "a": "To provide persistent, reliable storage for all subscriber profiles and policy data.",
+        "b": "To decode the SUCI into a SUPI during UE registration.",
+        "c": "To generate policy rules for Quality of Service (QoS).",
+        "d": "To send notifications to the AMF and SMF when a subscriber's location changes."
+      },
+      "explanations": {
+        "a": "Correct. UDR is the centralized data storage function.",
+        "b": "Incorrect. Identity handling is managed by UDM/AUSF.",
+        "c": "Incorrect. Policy rules are generated by PCF.",
+        "d": "Incorrect. Notifications are handled via UDM subscriptions."
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "When a UE requests to establish a PDU session for internet access, which network function queries the UDM to check allowed DNNs and session rules?",
+      "answers": {
+        "a": "AMF (Access and Mobility Management Function)",
+        "b": "NSSF (Network Slice Selection Function)",
+        "c": "SMF (Session Management Function)",
+        "d": "AUSF (Authentication Server Function)"
+      },
+      "explanations": {
+        "a": "Incorrect. AMF handles access and mobility.",
+        "b": "Incorrect. NSSF handles slice selection.",
+        "c": "Correct. SMF validates DNN and session rules.",
+        "d": "Incorrect. AUSF handles authentication only."
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "If a UE's subscriber profile has its Subscription Status set to BARRED, what will happen when it tries to connect to the network?",
+      "answers": {
+        "a": "It will not be able to register with the network at all.",
+        "b": "It will be allowed to register but assigned to a restricted slice.",
+        "c": "It will fail authentication due to invalid keys.",
+        "d": "It will register successfully but cannot establish a PDU session."
+      },
+      "explanations": {
+        "a": "Correct. BARRED status prevents registration.",
+        "b": "Incorrect. Registration itself is blocked.",
+        "c": "Incorrect. Keys may still be valid.",
+        "d": "Incorrect. UE cannot register in the first place."
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "What is the relationship between the SUPI and the SUCI?",
+      "answers": {
+        "a": "They are two independent identifiers assigned for different purposes.",
+        "b": "SUPI is used for 3GPP networks and SUCI for non-3GPP networks.",
+        "c": "SUPI is temporary while SUCI is permanent.",
+        "d": "SUCI is an encrypted version of the SUPI used for secure transmission."
+      },
+      "explanations": {
+        "a": "Incorrect. They represent the same identity.",
+        "b": "Incorrect. Both apply across access types.",
+        "c": "Incorrect. SUPI is permanent.",
+        "d": "Correct. SUCI protects SUPI over the air interface."
+      },
+      "correctAnswer": "d",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "How do network functions like the AMF and SMF learn about changes to a subscriber's profile after registration?",
+      "answers": {
+        "a": "They subscribe to the UDM for notifications and receive callbacks on data changes.",
+        "b": "They are only updated when the UE re-registers.",
+        "c": "They periodically poll the UDR for updates.",
+        "d": "The UDR broadcasts updates to all network functions."
+      },
+      "explanations": {
+        "a": "Correct. UDM supports subscription and notification mechanisms.",
+        "b": "Incorrect. Updates can occur during active sessions.",
+        "c": "Incorrect. Polling is not the SBA model.",
+        "d": "Incorrect. Notifications are subscription-based."
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "A PDU session request is rejected because the SMF cannot find an allowed DNN. Which subscriber data is likely missing or incorrect?",
+      "answers": {
+        "a": "Session Management Subscription (SM Data)",
+        "b": "Authentication Information",
+        "c": "Network Slice Subscription",
+        "d": "Access and Mobility Subscription (AM Data)"
+      },
+      "explanations": {
+        "a": "Correct. SM Data includes allowed DNNs.",
+        "b": "Incorrect. Authentication is unrelated to DNN selection.",
+        "c": "Incorrect. Slice data does not define DNNs.",
+        "d": "Incorrect. AM Data handles mobility permissions."
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Which of the following operations is a responsibility of the UDR?",
+      "answers": {
+        "a": "Supporting Create, Read, Update, and Delete (CRUD) operations on subscriber data.",
+        "b": "Providing the AMF with roaming permissions.",
+        "c": "Interacting with the AUSF during authentication.",
+        "d": "Generating and sending notifications to network functions."
+      },
+      "explanations": {
+        "a": "Correct. UDR provides CRUD operations.",
+        "b": "Incorrect. Roaming permissions are processed by UDM.",
+        "c": "Incorrect. AUSF interaction is handled by UDM.",
+        "d": "Incorrect. Notifications are managed by UDM."
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "The Network Slice Subscription data in a user profile is primarily composed of what information?",
+      "answers": {
+        "a": "A list of S-NSSAIs defined by SST and optional SD.",
+        "b": "SUPI and SUCI identifiers.",
+        "c": "Authentication keys and OPc values.",
+        "d": "AMBR and QoS Class Identifiers."
+      },
+      "explanations": {
+        "a": "Correct. Slice subscription defines allowed S-NSSAIs.",
+        "b": "Incorrect. These are identity parameters.",
+        "c": "Incorrect. These are authentication parameters.",
+        "d": "Incorrect. These are QoS parameters."
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "During registration, after receiving the SUCI, what is the AMF’s immediate next step involving the UDM?",
+      "answers": {
+        "a": "Forward the SUCI to the SMF.",
+        "b": "Request subscriber identity and authentication data from the UDM.",
+        "c": "Send Registration Accept to the UE.",
+        "d": "Request policy rules from the PCF."
+      },
+      "explanations": {
+        "a": "Incorrect. SMF is not involved yet.",
+        "b": "Correct. AMF queries UDM for subscriber data.",
+        "c": "Incorrect. Authentication must complete first.",
+        "d": "Incorrect. Policy rules are requested later."
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "What is the primary reason for separating the roles of UDM and UDR in the 5G SBA?",
+      "answers": {
+        "a": "To allow UDM to handle application logic and UDR to handle data storage and consistency.",
+        "b": "To eliminate the need for the AUSF.",
+        "c": "To reduce the physical footprint of the 5G Core.",
+        "d": "To restrict data access only to AMF and SMF."
+      },
+      "explanations": {
+        "a": "Correct. Separation improves scalability and modularity.",
+        "b": "Incorrect. AUSF is still required.",
+        "c": "Incorrect. Architecture separation is logical, not physical.",
+        "d": "Incorrect. Multiple NFs can access data via UDM."
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner"
+    }
+  ]
+}

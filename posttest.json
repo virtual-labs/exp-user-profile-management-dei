@@ -1,0 +1,175 @@
+{
+  "version": 2.0,
+  "questions": [
+    {
+      "question": "What is the first action required to begin Core Network deployment using the automatic approach?",
+      "answers": {
+        "a": "Select all Network Functions manually from the panel",
+        "b": "Click the One-Click Deploy button on the top toolbar",
+        "c": "Configure the gNB IP address",
+        "d": "Start the UE component"
+      },
+      "explanations": {
+        "a": "Incorrect. Manual selection is part of manual deployment.",
+        "b": "Correct. Automatic deployment starts by clicking the One-Click Deploy button.",
+        "c": "Incorrect. gNB configuration occurs after core deployment.",
+        "d": "Incorrect. UE is started later in the procedure."
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "During automatic Core Network deployment, which component is deployed first?",
+      "answers": {
+        "a": "AMF",
+        "b": "NRF",
+        "c": "Service Bus",
+        "d": "UPF"
+      },
+      "explanations": {
+        "a": "Incorrect. AMF is deployed after the Service Bus.",
+        "b": "Incorrect. NRF is not the first component.",
+        "c": "Correct. The Service Bus is deployed first.",
+        "d": "Incorrect. UPF is deployed later in the sequence."
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Which of the following Network Functions is NOT listed as part of the automatic Core Network deployment?",
+      "answers": {
+        "a": "AUSF",
+        "b": "PCF",
+        "c": "gNB",
+        "d": "UDR"
+      },
+      "explanations": {
+        "a": "Incorrect. AUSF is part of the core deployment.",
+        "b": "Incorrect. PCF is included in the deployment list.",
+        "c": "Correct. gNB is deployed separately after the core network.",
+        "d": "Incorrect. UDR is deployed as part of the core."
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "What visual behavior confirms that Core Network deployment is progressing successfully?",
+      "answers": {
+        "a": "All Network Functions appear instantly on the canvas",
+        "b": "Network Functions appear one by one on the topology view",
+        "c": "Only logs are generated without topology updates",
+        "d": "The topology remains empty until completion"
+      },
+      "explanations": {
+        "a": "Incorrect. Deployment is sequential, not instantaneous.",
+        "b": "Correct. Network Functions appear one by one during deployment.",
+        "c": "Incorrect. Topology updates visually during deployment.",
+        "d": "Incorrect. The topology updates progressively."
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Which configuration details are mandatory when deploying the gNB?",
+      "answers": {
+        "a": "DNN and Slice ID",
+        "b": "IP address and port number",
+        "c": "UE identity and SUPI",
+        "d": "Service Bus address"
+      },
+      "explanations": {
+        "a": "Incorrect. DNN is related to UE subscription.",
+        "b": "Correct. gNB requires a valid IP address and port.",
+        "c": "Incorrect. UE identity is not configured at gNB.",
+        "d": "Incorrect. Service Bus is part of core deployment."
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Which action allows you to view the list of registered UEs in the system?",
+      "answers": {
+        "a": "Click Start UE",
+        "b": "Select UDR and click Show Subscriber Info",
+        "c": "Open the gNB configuration panel",
+        "d": "Restart the Service Bus"
+      },
+      "explanations": {
+        "a": "Incorrect. Starting UE does not display UE records.",
+        "b": "Correct. UDR provides subscriber information via Show Subscriber Info.",
+        "c": "Incorrect. gNB does not store UE subscription data.",
+        "d": "Incorrect. Restarting the Service Bus is unrelated."
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Where are UE subscription parameters such as DNN modified?",
+      "answers": {
+        "a": "UE configuration panel",
+        "b": "AMF dashboard",
+        "c": "UDR subscriber edit screen",
+        "d": "gNB settings page"
+      },
+      "explanations": {
+        "a": "Incorrect. UE must match UDR, but changes are not made there first.",
+        "b": "Incorrect. AMF does not store subscription data.",
+        "c": "Correct. UE subscription parameters are edited in UDR.",
+        "d": "Incorrect. gNB does not manage subscriptions."
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "After modifying UE subscription details in the UDR, what confirms that the update was successful?",
+      "answers": {
+        "a": "UE automatically restarts",
+        "b": "A confirmation notification is displayed",
+        "c": "The topology refreshes automatically",
+        "d": "The gNB disconnects temporarily"
+      },
+      "explanations": {
+        "a": "Incorrect. UE does not restart automatically.",
+        "b": "Correct. A confirmation message indicates successful save.",
+        "c": "Incorrect. Topology refresh is not required.",
+        "d": "Incorrect. gNB behavior is unaffected."
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Why must the UE configuration exactly match the updated UDR subscription data?",
+      "answers": {
+        "a": "To improve gNB signal strength",
+        "b": "To allow successful UE registration and operation",
+        "c": "To reduce Service Bus load",
+        "d": "To speed up Core Network deployment"
+      },
+      "explanations": {
+        "a": "Incorrect. Signal strength is unrelated.",
+        "b": "Correct. Mismatched data causes registration failure.",
+        "c": "Incorrect. Service Bus load is unaffected.",
+        "d": "Incorrect. Core deployment is already completed."
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Which observation confirms that the UE is operating successfully within the network?",
+      "answers": {
+        "a": "UE configuration panel closes automatically",
+        "b": "UE registers successfully and remains active",
+        "c": "The UDR subscriber list becomes empty",
+        "d": "The Service Bus restarts"
+      },
+      "explanations": {
+        "a": "Incorrect. UI behavior does not confirm success.",
+        "b": "Correct. Successful registration and operation confirm success.",
+        "c": "Incorrect. Subscriber data remains intact.",
+        "d": "Incorrect. Service Bus restart is unnecessary."
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner"
+    }
+  ]
+}
