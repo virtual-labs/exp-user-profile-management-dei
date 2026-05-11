@@ -266,6 +266,21 @@ class NFManager {
         // NEW: Start service lifecycle management
         this.startServiceLifecycle(nf);
 
+        // AUTO-CONNECTION LOGIC
+        // When UPF is created, automatically connect to SMF
+        if (type === 'UPF') {
+            setTimeout(() => {
+                this.autoConnectUPFToSMF(nf);
+            }, 500);
+        }
+
+        // When ext-dn is created, automatically connect to UPF
+        if (type === 'ext-dn') {
+            setTimeout(() => {
+                this.autoConnectExtDNToUPF(nf);
+            }, 500);
+        }
+
         // SPECIAL CASE: When UDR is created, auto-start MySQL in same subnet
         if (type === 'UDR') {
             console.log(`🔄 UDR created - will auto-start MySQL in same subnet`);
@@ -352,6 +367,148 @@ class NFManager {
             // Re-render canvas
             if (window.canvasRenderer) {
                 window.canvasRenderer.render();
+            }
+        }
+    }
+
+    /**
+     * Auto-connect UPF to SMF when UPF is created
+     * @param {Object} upf - UPF network function
+     */
+    autoConnectUPFToSMF(upf) {
+        // Skip auto-connect during one-click deployment
+        if (this.disableAutoConnections) {
+            console.log(`🔒 Auto-connect disabled during deployment, skipping UPF->SMF for ${upf.name}`);
+            return;
+        }
+
+        // Check if UPF still exists
+        if (!window.dataStore?.getNFById(upf.id)) {
+            return;
+        }
+
+        // Find SMF
+        const allNFs = window.dataStore.getAllNFs();
+        const smf = allNFs.find(nf => nf.type === 'SMF');
+
+        if (!smf) {
+            console.log(`ℹ️ No SMF found to connect to ${upf.name}`);
+            return;
+        }
+
+        // Check if already connected
+        const existingConnection = window.dataStore.getAllConnections().find(conn =>
+            (conn.sourceId === upf.id && conn.targetId === smf.id) ||
+            (conn.sourceId === smf.id && conn.targetId === upf.id)
+        );
+
+        if (existingConnection) {
+            console.log(`ℹ️ ${upf.name} already connected to ${smf.name}`);
+            return;
+        }
+
+        // Create connection from SMF to UPF (N4 interface)
+        console.log(`🔗 Auto-connecting ${smf.name} to ${upf.name} (N4 interface)`);
+        
+        if (window.connectionManager) {
+            const connection = window.connectionManager.createManualConnection(smf.id, upf.id);
+            
+            if (connection) {
+                console.log(`✅ Auto-connected ${smf.name} -> ${upf.name}`);
+                
+                // Log the auto-connection
+                if (window.logEngine) {
+                    window.logEngine.addLog(upf.id, 'SUCCESS',
+                        `Auto-connected to ${smf.name} via N4 interface`, {
+                        interface: 'N4',
+                        protocol: 'PFCP',
+                        purpose: 'Session management and user plane control',
+                        autoConnect: true
+                    });
+                    
+                    window.logEngine.addLog(smf.id, 'SUCCESS',
+                        `Auto-connected to ${upf.name} via N4 interface`, {
+                        interface: 'N4',
+                        protocol: 'PFCP',
+                        purpose: 'User plane function control',
+                        autoConnect: true
+                    });
+                }
+                
+                // Re-render canvas
+                if (window.canvasRenderer) {
+                    window.canvasRenderer.render();
+                }
+            }
+        }
+    }
+
+    /**
+     * Auto-connect ext-dn to UPF when ext-dn is created
+     * @param {Object} extDN - ext-dn network function
+     */
+    autoConnectExtDNToUPF(extDN) {
+        // Skip auto-connect during one-click deployment
+        if (this.disableAutoConnections) {
+            console.log(`🔒 Auto-connect disabled during deployment, skipping ext-dn->UPF for ${extDN.name}`);
+            return;
+        }
+
+        // Check if ext-dn still exists
+        if (!window.dataStore?.getNFById(extDN.id)) {
+            return;
+        }
+
+        // Find UPF
+        const allNFs = window.dataStore.getAllNFs();
+        const upf = allNFs.find(nf => nf.type === 'UPF');
+
+        if (!upf) {
+            console.log(`ℹ️ No UPF found to connect to ${extDN.name}`);
+            return;
+        }
+
+        // Check if already connected
+        const existingConnection = window.dataStore.getAllConnections().find(conn =>
+            (conn.sourceId === extDN.id && conn.targetId === upf.id) ||
+            (conn.sourceId === upf.id && conn.targetId === extDN.id)
+        );
+
+        if (existingConnection) {
+            console.log(`ℹ️ ${extDN.name} already connected to ${upf.name}`);
+            return;
+        }
+
+        // Create connection from UPF to ext-dn (N6 interface)
+        console.log(`🔗 Auto-connecting ${upf.name} to ${extDN.name} (N6 interface)`);
+        
+        if (window.connectionManager) {
+            const connection = window.connectionManager.createManualConnection(upf.id, extDN.id);
+            
+            if (connection) {
+                console.log(`✅ Auto-connected ${upf.name} -> ${extDN.name}`);
+                
+                // Log the auto-connection
+                if (window.logEngine) {
+                    window.logEngine.addLog(upf.id, 'SUCCESS',
+                        `Auto-connected to ${extDN.name} via N6 interface`, {
+                        interface: 'N6',
+                        purpose: 'External data network / Internet gateway',
+                        autoConnect: true
+                    });
+                    
+                    window.logEngine.addLog(extDN.id, 'SUCCESS',
+                        `Auto-connected to ${upf.name} via N6 interface`, {
+                        interface: 'N6',
+                        purpose: 'Receive user plane traffic from 5G core',
+                        autoConnect: true
+                    });
+                }
+                
+                // Re-render canvas
+                if (window.canvasRenderer) {
+                    window.canvasRenderer.render();
+                }
             }
         }
     }
@@ -1297,11 +1454,11 @@ class NFManager {
      */
     getStatusColor(status) {
         switch (status) {
-            case 'starting': return '#e74c3c'; // Red
-            case 'stable': return '#2ecc71';   // Green
-            case 'error': return '#e67e22';    // Orange
-            case 'stopped': return '#95a5a6';  // Gray
-            default: return '#3498db';         // Blue
+            case 'starting': return '#ff9800'; // Orange/Yellow for starting
+            case 'stable': return '#4caf50';   // Green for stable
+            case 'stopped': return '#e74c3c';  // Red for stopped
+            case 'error': return '#e67e22';    // Orange for error
+            default: return '#95a5a6';         // Gray for unknown
         }
     }
 

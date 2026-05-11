@@ -9,6 +9,56 @@
  * - Start/stop individual NFs
  * - Display service status with health indicators
  * - Watch mode for real-time status updates
+ * 
+ * ============================================
+ * STANDARDIZED TERMINAL FEATURES
+ * ============================================
+ * This implementation includes standardized UI patterns that can be
+ * reused across other simulation components:
+ * 
+ * 1. AUTOCOMPLETE LOGIC (Tab Key)
+ *    - Uses Longest Common Prefix (LCP) algorithm
+ *    - Single match: Auto-completes fully
+ *    - Multiple matches: Extends to LCP, then shows all options
+ *    - No matches: Visual feedback (opacity flicker)
+ *    - Multi-column grid display for options
+ *    - See: Tab key handler in setupTerminal()
+ * 
+ * 2. SIMPLIFIED WINDOW CONTROLS
+ *    - Only Close button (×) in title bar
+ *    - No minimize/maximize buttons
+ *    - No dragging or resizing
+ *    - Fixed centered modal overlay
+ *    - See: openTerminal()
+ * 
+ * 3. VI MODE - FULL NAVIGATION
+ *    Exit Commands:
+ *    - Press 'q' for quick exit (like less/more pagers)
+ *    - Press ':q', ':q!', ':wq' for vi-style exit
+ *    - Press 'Escape' to exit or clear command buffer
+ *    
+ *    Navigation Keys:
+ *    - 'j' / 'k' → Scroll line by line
+ *    - 'f' / 'b' → Scroll page by page
+ *    - 'G' → Go to bottom
+ *    - 'gg' → Go to top (press 'g' twice)
+ *    - Arrow keys, PageUp/PageDown supported
+ *    
+ *    All keystrokes prevented from reaching terminal
+ *    Uses event capture phase for proper isolation
+ *    See: enterViMode(), viKeyHandler
+ * 
+ * 4. KEYBOARD SHORTCUTS
+ *    - Ctrl+C → Interrupt/Stop watch mode
+ *    - Ctrl+L → Clear screen
+ *    - Arrow Up/Down → Command history navigation
+ *    - Enter → Execute command
+ *    - Tab → Autocomplete with LCP
+ * 
+ * 5. CLEAN OUTPUT
+ *    - No extra blank lines after commands
+ *    - Professional spacing like real terminals
+ *    - Color-coded output (Success/Warning/Error/Info)
  */
 
 class DockerTerminal {
@@ -185,7 +235,7 @@ class DockerTerminal {
     }
 
     /**
-     * Open Docker terminal modal
+     * Open Docker terminal modal - Realistic Terminal Style
      */
     openTerminal() {
         // Remove existing terminal if any
@@ -200,29 +250,32 @@ class DockerTerminal {
         terminalModal.className = 'docker-terminal-modal';
         terminalModal.innerHTML = `
             <div class="docker-terminal-window" id="docker-terminal-window">
-                <div class="docker-terminal-titlebar" id="docker-terminal-titlebar">
-                    <div class="docker-terminal-title">
-                        <span class="docker-terminal-icon">🐳</span>
-                        Docker Terminal - Main Terminal
+                <div class="docker-terminal-resize-handle" data-dir="n"></div>
+                <div class="docker-terminal-resize-handle" data-dir="s"></div>
+                <div class="docker-terminal-resize-handle" data-dir="e"></div>
+                <div class="docker-terminal-resize-handle" data-dir="w"></div>
+                <div class="docker-terminal-resize-handle" data-dir="ne"></div>
+                <div class="docker-terminal-resize-handle" data-dir="nw"></div>
+                <div class="docker-terminal-resize-handle" data-dir="se"></div>
+                <div class="docker-terminal-resize-handle" data-dir="sw"></div>
+                <div class="docker-terminal-inner">
+                    <div class="docker-terminal-titlebar" id="docker-terminal-titlebar">
+                        <div class="docker-terminal-title">
+                            <span class="docker-terminal-icon">🐳</span>
+                            Docker Terminal
+                        </div>
+                        <div class="docker-terminal-controls">
+                            <button class="docker-terminal-btn close" id="docker-terminal-close" title="Close">×</button>
+                        </div>
                     </div>
-                    <div class="docker-terminal-controls">
-                        <button class="docker-terminal-btn minimize" id="docker-terminal-minimize" title="Minimize">−</button>
-                        <button class="docker-terminal-btn maximize" id="docker-terminal-maximize" title="Maximize">□</button>
-                        <button class="docker-terminal-btn close" id="docker-terminal-close" title="Close">×</button>
+                    <div class="docker-terminal-content" id="docker-terminal-content">
+                        <div class="docker-terminal-output" id="docker-terminal-output"></div>
+                        <div class="docker-terminal-input-line" id="docker-terminal-input-line">
+                            <span class="docker-terminal-prompt">docker@main></span>
+                            <span id="docker-terminal-input" class="docker-terminal-input" contenteditable="true" spellcheck="false" autocorrect="off" autocapitalize="off" role="textbox" aria-label="Terminal input"></span>
+                        </div>
                     </div>
                 </div>
-                <div class="docker-terminal-content" id="docker-terminal-content">
-                    <div class="docker-terminal-header">
-                        Docker Terminal v1.0<br>
-                        Type 'help' for available commands<br><br>
-                    </div>
-                    <div class="docker-terminal-output" id="docker-terminal-output"></div>
-                    <div class="docker-terminal-input-line">
-                        <span class="docker-terminal-prompt">docker@main></span>
-                        <input type="text" id="docker-terminal-input" class="docker-terminal-input" autocomplete="off" spellcheck="false">
-                    </div>
-                </div>
-                <div class="docker-terminal-resize-handle" id="docker-terminal-resize-handle"></div>
             </div>
         `;
 
@@ -237,29 +290,125 @@ class DockerTerminal {
         // Apply saved position and size
         this.applyTerminalState();
 
+        // GLOBAL FALLBACK: Add document-level Ctrl+C handler
+        const globalCtrlCHandler = (e) => {
+            const isCtrlC = (e.ctrlKey || e.metaKey) && 
+                           (e.key === 'c' || e.key === 'C' || e.keyCode === 67 || e.which === 67);
+            
+            if (isCtrlC && this.isWatching) {
+                console.log('🔴 GLOBAL HANDLER: Ctrl+C detected!', {
+                    key: e.key,
+                    keyCode: e.keyCode,
+                    which: e.which,
+                    ctrlKey: e.ctrlKey,
+                    metaKey: e.metaKey,
+                    isWatching: this.isWatching
+                });
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                this.stopWatch();
+                const output = document.getElementById('docker-terminal-output');
+                if (output) {
+                    this.addTerminalLine(output, '^C', 'info');
+                }
+                return false;
+            }
+        };
+        
+        // Add to document with capture phase
+        document.addEventListener('keydown', globalCtrlCHandler, true);
+        
+        // Clean up when terminal closes
+        const originalRemove = terminalModal.remove.bind(terminalModal);
+        terminalModal.remove = () => {
+            document.removeEventListener('keydown', globalCtrlCHandler, true);
+            originalRemove();
+        };
+
         // Show terminal with animation
         setTimeout(() => {
             terminalModal.classList.add('show');
         }, 10);
 
-        // Focus on input
+        // Focus on input and scroll to bottom
         const input = document.getElementById('docker-terminal-input');
+        const content = document.getElementById('docker-terminal-content');
         if (input) {
             input.focus();
+        }
+        if (content) {
+            content.scrollTop = content.scrollHeight;
         }
     }
 
     /**
-     * Setup Docker terminal functionality
+     * Setup Docker terminal functionality - Realistic Terminal
      * @param {HTMLElement} terminalModal - Terminal modal element
      */
     setupTerminal(terminalModal) {
-        const input = document.getElementById('docker-terminal-input');
         const output = document.getElementById('docker-terminal-output');
+        const content = document.getElementById('docker-terminal-content');
         const closeBtn = document.getElementById('docker-terminal-close');
 
         let commandHistory = [];
         let historyIndex = -1;
+
+        // Tab completion state
+        let tab = null;
+
+        const commands = [
+            // Simple commands
+            'help', 'status', 'check', 'clear', 'cls', 'exit', 'ls',
+            // vi - only docker-compose.yml
+            'vi docker-compose.yml',
+            // docker plain
+            'docker ps',
+            'docker network ls',
+            'docker network inspect ',
+            'docker version',
+            'docker start ',
+            'docker stop ',
+            // docker compose (space form) — core
+            'docker compose up -d',
+            'docker compose down',
+            'docker compose -f docker-compose.yml up -d',
+            'docker compose -f docker-compose.yml up -d ',   // trailing space → service name follows
+            'docker compose -f docker-compose.yml down',
+            'docker compose -f docker-compose.yml down ',    // trailing space → service name follows
+            // docker compose — gnb
+            'docker compose -f docker-compose-gnb.yml up -d',
+            'docker compose -f docker-compose-gnb.yml down',
+            // docker compose — ue
+            'docker compose -f docker-compose-ue.yml up -d',
+            'docker compose -f docker-compose-ue.yml down',
+            // docker compose — ran (individual UEs)
+            'docker compose -f docker-compose-ran.yml up -d oai-ue1',
+            'docker compose -f docker-compose-ran.yml up -d oai-ue2',
+            // watch
+            'watch docker compose ps -a',
+            'watch docker compose -f docker-compose.yml ps -a',
+        ];
+
+        // Helper: write text to input, always fetching fresh reference
+        const writeInput = (text) => {
+            const inp = document.getElementById('docker-terminal-input');
+            if (!inp) return;
+            inp.innerHTML = '';
+            inp.appendChild(document.createTextNode(text));
+            moveCursorToEnd(inp);
+        };
+
+        // Helper: move cursor to end of contentEditable element
+        const moveCursorToEnd = (el) => {
+            el.focus();
+            const range = document.createRange();
+            const sel = window.getSelection();
+            range.selectNodeContents(el);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        };
 
         // Close button
         closeBtn.addEventListener('click', () => {
@@ -277,60 +426,240 @@ class DockerTerminal {
             }
         });
 
-        // Input handling
-        input.addEventListener('keydown', async (e) => {
-            // Handle Ctrl+C to stop watch mode
-            if (e.ctrlKey && e.key === 'c' && this.isWatching) {
+        // Keep focus on input when clicking in terminal
+        content.addEventListener('click', (e) => {
+            const inp = document.getElementById('docker-terminal-input');
+            if (inp && e.target !== inp) {
+                inp.focus();
+            }
+        });
+
+        // Scroll to bottom helper
+        const scrollToBottom = () => {
+            if (content) {
+                content.scrollTop = content.scrollHeight;
+            }
+        };
+
+        // CAPTURE PHASE: Catch Ctrl+C before any other handlers
+        // This uses the capture phase (third parameter = true) to intercept the event early
+        terminalModal.addEventListener('keydown', (e) => {
+            // Check multiple ways to detect Ctrl+C
+            const isCtrlC = (e.ctrlKey || e.metaKey) && 
+                           (e.key === 'c' || e.key === 'C' || e.keyCode === 67 || e.which === 67);
+            
+            if (isCtrlC && this.isWatching) {
+                console.log('🔴 CAPTURE PHASE: Ctrl+C detected!', {
+                    key: e.key,
+                    keyCode: e.keyCode,
+                    which: e.which,
+                    ctrlKey: e.ctrlKey,
+                    metaKey: e.metaKey,
+                    isWatching: this.isWatching
+                });
                 e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
                 this.stopWatch();
-                this.addTerminalLine(output, '', 'blank');
-                this.addTerminalLine(output, 'Watch mode stopped.', 'info');
-                this.addTerminalLine(output, '', 'blank');
+                this.addTerminalLine(output, '^C', 'info');
+                requestAnimationFrame(() => {
+                    scrollToBottom();
+                    document.getElementById('docker-terminal-input')?.focus();
+                });
+                return false; // Extra safety
+            }
+        }, true); // true = capture phase
+
+        // Input handling — attach to document so it still works after input line is recreated
+        terminalModal.addEventListener('keydown', async (e) => {
+            // PRIORITY: Handle Ctrl+C first, before anything else
+            // Check multiple ways to detect Ctrl+C
+            const isCtrlC = (e.ctrlKey || e.metaKey) && 
+                           (e.key === 'c' || e.key === 'C' || e.keyCode === 67 || e.which === 67);
+            
+            if (isCtrlC) {
+                if (this.isWatching) {
+                    console.log('🔴 BUBBLE PHASE: Ctrl+C detected!', {
+                        key: e.key,
+                        keyCode: e.keyCode,
+                        which: e.which,
+                        ctrlKey: e.ctrlKey,
+                        metaKey: e.metaKey,
+                        isWatching: this.isWatching
+                    });
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    this.stopWatch();
+                    this.addTerminalLine(output, '^C', 'info');
+                    // stopWatch restores the input line; scroll after reflow
+                    requestAnimationFrame(() => {
+                        scrollToBottom();
+                        document.getElementById('docker-terminal-input')?.focus();
+                    });
+                    return false; // Extra safety
+                }
+            }
+
+            // Ignore if in vi mode (vi handler will handle it)
+            if (this.isInViMode) {
+                return;
+            }
+
+            // Handle Ctrl+L to clear screen
+            if (e.ctrlKey && e.key === 'l') {
+                e.preventDefault();
+                output.innerHTML = '';
+                scrollToBottom();
                 return;
             }
 
             if (e.key === 'Enter') {
-                const command = input.value.trim();
+                e.preventDefault();
+                tab = null;
+                const inp = document.getElementById('docker-terminal-input');
+                const command = inp ? inp.textContent.trim() : '';
                 if (command) {
-                    // Add to history
                     commandHistory.push(command);
                     historyIndex = commandHistory.length;
-
-                    // Display command
-                    this.addTerminalLine(output, `docker@main>${command}`, 'command');
-
-                    // Clear input
-                    input.value = '';
-
-                    // Process command
+                    this.addTerminalLine(output, `docker@main> ${command}`, 'command');
+                    writeInput('');
+                    // Hide input line while command is running
+                    const inputLine = document.getElementById('docker-terminal-input-line');
+                    if (inputLine) inputLine.style.display = 'none';
                     await this.processCommand(command, output);
+                    // Restore input line after command finishes (unless watch mode took over)
+                    if (!this.isWatching) {
+                        const inputLineAfter = document.getElementById('docker-terminal-input-line');
+                        if (inputLineAfter) inputLineAfter.style.display = 'flex';
+                        scrollToBottom();
+                        document.getElementById('docker-terminal-input')?.focus();
+                    }
+                } else {
+                    this.addTerminalLine(output, 'docker@main>', 'command');
+                    scrollToBottom();
                 }
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
+                tab = null;
                 if (historyIndex > 0) {
                     historyIndex--;
-                    input.value = commandHistory[historyIndex];
+                    writeInput(commandHistory[historyIndex]);
                 }
             } else if (e.key === 'ArrowDown') {
                 e.preventDefault();
+                tab = null;
                 if (historyIndex < commandHistory.length - 1) {
                     historyIndex++;
-                    input.value = commandHistory[historyIndex];
+                    writeInput(commandHistory[historyIndex]);
                 } else {
                     historyIndex = commandHistory.length;
-                    input.value = '';
+                    writeInput('');
                 }
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+
+                // Cycle through stored options if tab is already active
+                if (tab && tab.active) {
+                    tab.index = (tab.index + 1) % tab.options.length;
+                    writeInput(tab.base + tab.options[tab.index] + ' ');
+                    return;
+                }
+
+                // Fresh tab press — read raw text preserving trailing spaces
+                const inp = document.getElementById('docker-terminal-input');
+                if (!inp) return;
+                const raw = inp.textContent; // no trim — preserve trailing space
+
+                // Determine base and partial word
+                let base, partial;
+                if (raw.endsWith(' ')) {
+                    base = raw;
+                    partial = '';
+                } else {
+                    const lastSpace = raw.lastIndexOf(' ');
+                    if (lastSpace === -1) {
+                        base = '';
+                        partial = raw;
+                    } else {
+                        base = raw.slice(0, lastSpace + 1);
+                        partial = raw.slice(lastSpace + 1);
+                    }
+                }
+
+                // Filter commands that start with the full typed text (base)
+                const filtered = commands.filter(cmd => cmd.startsWith(base));
+
+                // Extract the next word from each match after base length
+                const optionSet = new Set();
+                filtered.forEach(cmd => {
+                    const rest = cmd.slice(base.length);
+                    const nextWord = rest.split(' ')[0];
+                    if (nextWord && nextWord.startsWith(partial)) {
+                        optionSet.add(nextWord);
+                    }
+                });
+                const options = Array.from(optionSet);
+
+                if (options.length === 0) return;
+
+                if (options.length === 1) {
+                    // Single match — complete inline
+                    writeInput(base + options[0] + ' ');
+                } else {
+                    // Multiple matches — find longest common prefix
+                    const lcp = options.reduce((prefix, opt) => {
+                        let i = 0;
+                        while (i < prefix.length && i < opt.length && prefix[i] === opt[i]) i++;
+                        return prefix.slice(0, i);
+                    });
+
+                    if (lcp.length > partial.length) {
+                        // LCP extends beyond partial — fill silently
+                        writeInput(base + lcp);
+                    } else {
+                        // Print current prompt line as static, show options, recreate input line
+                        const currentText = inp.textContent;
+                        const promptLine = document.getElementById('docker-terminal-input-line');
+
+                        // Print the current prompt line as static output
+                        this.addTerminalLine(output, `docker@main> ${currentText}`, 'command');
+                        // Print options on next line
+                        this.addTerminalLine(output, options.join('  '), 'info');
+
+                        // Remove and recreate the input line so getElementById returns a fresh element
+                        if (promptLine) {
+                            const parent = promptLine.parentNode;
+                            promptLine.remove();
+                            const newLine = document.createElement('div');
+                            newLine.className = 'docker-terminal-input-line';
+                            newLine.id = 'docker-terminal-input-line';
+                            newLine.innerHTML = `<span class="docker-terminal-prompt">docker@main></span><span id="docker-terminal-input" class="docker-terminal-input" contenteditable="true" spellcheck="false" autocorrect="off" autocapitalize="off" role="textbox" aria-label="Terminal input"></span>`;
+                            parent.appendChild(newLine);
+                        }
+
+                        // Restore typed text and store tab state
+                        writeInput(currentText);
+                        tab = { active: true, base, options, index: 0 };
+                        scrollToBottom();
+                    }
+                }
+            } else {
+                // Any non-Tab key resets tab state
+                tab = null;
             }
         });
 
-        // Initial welcome message
-        this.addTerminalLine(output, 'Welcome to Docker Terminal', 'info');
-        this.addTerminalLine(output, 'Type "help" for available commands.', 'info');
-        this.addTerminalLine(output, '', 'blank');
+        // Initial welcome message - displayed as terminal output lines
+        this.addTerminalLine(output, '5G WIRELESS LAB', 'info');
+        this.addTerminalLine(output, 'Type \'help\' for available commands', 'info');
+        
+        // Scroll to bottom on init so prompt is visible right after welcome message
+        scrollToBottom();
     }
 
     /**
-     * Process Docker command
+     * Process Docker command - Realistic Terminal Style
      * @param {string} command - Command to process
      * @param {HTMLElement} output - Output element
      */
@@ -340,6 +669,11 @@ class DockerTerminal {
 
         if (cmd === 'help' || cmd === '?') {
             this.showHelp(output);
+        } else if (cmd === 'ls') {
+            this.dockerLS(output);
+        } else if (cmd.startsWith('vi ') || cmd === 'vi') {
+            const fileName = args[1] || '';
+            this.dockerVi(fileName, output);
         } else if (cmd === 'status' || cmd === 'check') {
             this.checkSystemStatus(output);
         } else if (cmd === 'docker compose -f docker-compose.yml up -d' || cmd === 'docker-compose -f docker-compose.yml up -d' ||
@@ -408,11 +742,9 @@ class DockerTerminal {
             const closeBtn = document.getElementById('docker-terminal-close');
             if (closeBtn) closeBtn.click();
         } else {
-            this.addTerminalLine(output, `Command not found: ${command}`, 'error');
-            this.addTerminalLine(output, 'Type "help" for available commands.', 'info');
+            this.addTerminalLine(output, `${command}: command not found`, 'error');
         }
-
-        this.addTerminalLine(output, '', 'blank');
+        // No extra blank line - like real terminal
     }
 
     /**
@@ -456,6 +788,428 @@ class DockerTerminal {
         } else {
             this.addTerminalLine(output, '❌ CanvasRenderer: Not available', 'error');
         }
+    }
+
+    /**
+     * List files in the current directory (matches reference image)
+     * @param {HTMLElement} output - Output element
+     */
+    dockerLS(output) {
+        this.addTerminalLine(output, 'docker-compose.yml', 'info');
+    }
+
+    /**
+     * Open a file in an embedded read-only viewer (vi)
+     * @param {string} fileName - File to open
+     * @param {HTMLElement} output - Output element
+     */
+    dockerVi(fileName, output) {
+        if (!fileName || fileName !== 'docker-compose.yml') {
+            this.addTerminalLine(output, `vi: ${fileName || 'no file'}: No such file or directory`, 'error');
+            return;
+        }
+
+        const content = `services:
+    mysql:
+        container_name: "mysql"
+        image: ghcr.io/openairinterface/mysql:8.0
+        volumes:
+            - ./database/oai_db.sql:/docker-entrypoint-initdb.d/oai_db.sql
+            - ./healthscripts/mysql-healthcheck.sh:/tmp/mysql-healthcheck.sh
+        environment:
+            - TZ=Europe/Paris
+            - MYSQL_DATABASE=oai_db
+            - MYSQL_USER=test
+            - MYSQL_PASSWORD=test
+            - MYSQL_ROOT_PASSWORD=linux
+        healthcheck:
+            test: /bin/bash -c "/tmp/mysql-healthcheck.sh"
+            interval: 10s
+            timeout: 5s
+            retries: 30
+        networks:
+            public_net:
+                ipv4_address: 192.168.70.131
+
+    oai-udr:
+        container_name: "oai-udr"
+        image: ghcr.io/openairinterface/oai-udr:develop
+        expose:
+            - 80/tcp
+            - 8080/tcp
+        volumes:
+            - ./conf/config.yaml:/openair-udr/etc/config.yaml
+        environment:
+            - TZ=Europe/Paris
+        depends_on:
+            - mysql
+            - oai-nrf
+        networks:
+            public_net:
+                ipv4_address: 192.168.70.136
+
+    oai-udm:
+        container_name: "oai-udm"
+        image: ghcr.io/openairinterface/oai-udm:develop
+        expose:
+            - 80/tcp
+            - 8080/tcp
+        volumes:
+            - ./conf/config.yaml:/openair-udm/etc/config.yaml
+        environment:
+            - TZ=Europe/Paris
+        depends_on:
+            - oai-udr
+        networks:
+            public_net:
+                ipv4_address: 192.168.70.137
+
+    oai-ausf:
+        container_name: "oai-ausf"
+        image: ghcr.io/openairinterface/oai-ausf:develop
+        expose:
+            - 80/tcp
+            - 8080/tcp
+        volumes:
+            - ./conf/config.yaml:/openair-ausf/etc/config.yaml
+        environment:
+            - TZ=Europe/Paris
+        depends_on:
+            - oai-udm
+        networks:
+            public_net:
+                ipv4_address: 192.168.70.138
+
+    oai-nrf:
+        container_name: "oai-nrf"
+        image: ghcr.io/openairinterface/oai-nrf:develop
+        expose:
+            - 80/tcp
+            - 8080/tcp
+        volumes:
+            - ./conf/config.yaml:/openair-nrf/etc/config.yaml
+        environment:
+            - TZ=Europe/Paris
+        networks:
+            public_net:
+                ipv4_address: 192.168.70.130
+
+    oai-amf:
+        container_name: "oai-amf"
+        image: ghcr.io/openairinterface/oai-amf:develop
+        expose:
+            - 80/tcp
+            - 8080/tcp
+            - 38412/sctp
+        volumes:
+            - ./conf/config.yaml:/openair-amf/etc/config.yaml
+        environment:
+            - TZ=Europe/Paris
+        depends_on:
+            - mysql
+            - oai-nrf
+            - oai-ausf
+        networks:
+            public_net:
+                ipv4_address: 192.168.70.132
+
+    oai-smf:
+        container_name: "oai-smf"
+        image: ghcr.io/openairinterface/oai-smf:develop
+        expose:
+            - 80/tcp
+            - 8080/tcp
+            - 8805/udp
+        volumes:
+            - ./conf/config.yaml:/openair-smf/etc/config.yaml
+        environment:
+            - TZ=Europe/Paris
+        depends_on:
+            - oai-nrf
+            - oai-amf
+        networks:
+            public_net:
+                ipv4_address: 192.168.70.133
+
+    oai-upf:
+        container_name: "oai-upf"
+        image: ghcr.io/openairinterface/oai-upf:develop
+        expose:
+            - 80/tcp
+            - 2152/udp
+            - 8805/udp
+        volumes:
+            - ./conf/config.yaml:/openair-upf/etc/config.yaml
+        environment:
+            - TZ=Europe/Paris
+        depends_on:
+            - oai-nrf
+            - oai-smf
+        cap_add:
+            - NET_ADMIN
+            - SYS_ADMIN
+        cap_drop:
+            - ALL
+        privileged: true
+        networks:
+            public_net:
+                ipv4_address: 192.168.70.134
+
+    oai-traffic-server:
+        privileged: true
+        init: true
+        container_name: oai-ext-dn
+        image: ghcr.io/openairinterface/trf-gen-cn5g:latest
+        environment:
+            - UPF_FQDN=oai-upf
+            - UE_NETWORK=10.0.0.0/24
+            - USE_FQDN=yes
+        healthcheck:
+            test: /bin/bash -c "ip r | grep 12.1.1"
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            public_net:
+                ipv4_address: 192.168.70.135
+
+networks:
+    public_net:
+        driver: bridge
+        name: oaiworkshop
+        ipam:
+            config:
+                - subnet: 192.168.70.128/26
+        driver_opts:
+            com.docker.network.bridge.name: "oaiworkshop"`;
+
+        this.enterViMode(fileName, content);
+    }
+
+    /**
+     * Enter embedded vi mode inside terminal window
+     * @param {string} fileName - File name
+     * @param {string} content - File content
+     */
+    enterViMode(fileName, content) {
+        const terminalContent = document.getElementById('docker-terminal-content');
+        if (!terminalContent) return;
+
+        // Save and hide current output/input
+        const output = document.getElementById('docker-terminal-output');
+        const inputLine = document.getElementById('docker-terminal-input-line');
+        if (output) output.style.display = 'none';
+        if (inputLine) inputLine.style.display = 'none';
+
+        // Create vi container (covers the area)
+        const viContainer = document.createElement('div');
+        viContainer.id = 'vi-editor-container';
+        viContainer.style.cssText = `
+            position: absolute;
+            top: 35px; /* Adjust for titlebar height */
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        `;
+
+        const editorBody = document.createElement('div');
+        editorBody.style.cssText = `
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #d4d4d4;
+        `;
+
+        const lines = content.split('\n');
+        let highlightedContent = '';
+        lines.forEach((line, index) => {
+            const lineNum = (index + 1).toString().padStart(2, ' ');
+            // Simple syntax highlighting for YAML
+            let formattedLine = line
+                .replace(/^(\s*)([a-zA-Z0-9_-]+):/, '$1<span style="color:#9cdcfe">$2</span>:')
+                .replace(/: "(.*)"$/, ': <span style="color:#ce9178">"$1"</span>')
+                .replace(/: (.*)$/, (match, group) => {
+                    if (group.includes('span')) return match;
+                    return ': <span style="color:#b5cea8">' + group + '</span>';
+                });
+            
+            highlightedContent += `<div style="display:flex; white-space: pre;"><span style="color:#858585; min-width: 30px; margin-right: 15px; user-select:none; text-align: right;">${lineNum}</span><span>${formattedLine}</span></div>`;
+        });
+
+        editorBody.innerHTML = highlightedContent;
+
+        const statusBar = document.createElement('div');
+        statusBar.style.cssText = `
+            height: 25px;
+            background: #264f78;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            font-size: 11px;
+            font-family: sans-serif;
+        `;
+        statusBar.innerHTML = `<span>"${fileName}" [readonly]</span><span>Press 'q' or ':q' to close`;
+
+        viContainer.appendChild(editorBody);
+        viContainer.appendChild(statusBar);
+        terminalContent.appendChild(viContainer);
+
+        this.isInViMode = true;
+        this.viCommandBuffer = '';
+        this.viGBuffer = ''; // For 'gg' command
+
+        // Custom key handler for vi mode - Full vi navigation
+        this.viKeyHandler = (e) => {
+            if (!this.isInViMode) return;
+
+            // Prevent all keys from reaching terminal
+            e.preventDefault();
+            e.stopPropagation();
+
+            const viBody = document.querySelector('#vi-editor-container > div:first-child');
+            if (!viBody) return;
+
+            // Handle 'g' for 'gg' (go to top)
+            if (e.key.toLowerCase() === 'g') {
+                if (this.viGBuffer === 'g') {
+                    // Second 'g' - go to top
+                    viBody.scrollTop = 0;
+                    this.viGBuffer = '';
+                } else {
+                    // First 'g' - wait for second
+                    this.viGBuffer = 'g';
+                    setTimeout(() => { this.viGBuffer = ''; }, 1000); // Reset after 1 second
+                }
+                return;
+            }
+
+            // Handle 'G' (go to bottom)
+            if (e.key === 'G') {
+                viBody.scrollTop = viBody.scrollHeight;
+                return;
+            }
+
+            // Handle 'j' (scroll down one line)
+            if (e.key.toLowerCase() === 'j') {
+                viBody.scrollTop += 20; // Approximate line height
+                return;
+            }
+
+            // Handle 'k' (scroll up one line)
+            if (e.key.toLowerCase() === 'k') {
+                viBody.scrollTop -= 20; // Approximate line height
+                return;
+            }
+
+            // Handle 'f' (scroll forward one page)
+            if (e.key.toLowerCase() === 'f') {
+                viBody.scrollTop += viBody.clientHeight;
+                return;
+            }
+
+            // Handle 'b' (scroll backward one page)
+            if (e.key.toLowerCase() === 'b') {
+                viBody.scrollTop -= viBody.clientHeight;
+                return;
+            }
+
+            // Handle Arrow keys for scrolling
+            if (e.key === 'ArrowDown') {
+                viBody.scrollTop += 20;
+                return;
+            }
+
+            if (e.key === 'ArrowUp') {
+                viBody.scrollTop -= 20;
+                return;
+            }
+
+            if (e.key === 'PageDown') {
+                viBody.scrollTop += viBody.clientHeight;
+                return;
+            }
+
+            if (e.key === 'PageUp') {
+                viBody.scrollTop -= viBody.clientHeight;
+                return;
+            }
+
+            // Handle simple 'q' key to exit (like less/more pagers)
+            if (e.key.toLowerCase() === 'q' && this.viCommandBuffer === '') {
+                this.exitViMode();
+                return;
+            }
+
+            // Handle ':' to start command mode
+            if (e.key === ':') {
+                this.viCommandBuffer = ':';
+                return;
+            }
+
+            // If in command mode, handle command input
+            if (this.viCommandBuffer === ':') {
+                if (e.key === 'q' || e.key === 'Q') {
+                    // :q or :Q command
+                    this.exitViMode();
+                    return;
+                } else if (e.key === 'Escape') {
+                    // Cancel command mode
+                    this.viCommandBuffer = '';
+                    return;
+                }
+            }
+
+            // Handle Enter key in command mode
+            if (e.key === 'Enter' && this.viCommandBuffer.startsWith(':')) {
+                const cmd = this.viCommandBuffer.slice(1).toLowerCase();
+                if (['q', 'q!', 'wq', 'quit', 'exit'].includes(cmd)) {
+                    this.exitViMode();
+                }
+                this.viCommandBuffer = '';
+                return;
+            }
+
+            // Handle Escape to exit or clear command buffer
+            if (e.key === 'Escape') {
+                if (this.viCommandBuffer) {
+                    this.viCommandBuffer = '';
+                } else {
+                    this.exitViMode();
+                }
+                return;
+            }
+        };
+        // Use capture phase to intercept BEFORE main terminal handler
+        document.addEventListener('keydown', this.viKeyHandler, true);
+    }
+
+    /**
+     * Exit vi mode and restore terminal
+     */
+    exitViMode() {
+        const viContainer = document.getElementById('vi-editor-container');
+        if (viContainer) viContainer.remove();
+
+        const output = document.getElementById('docker-terminal-output');
+        const inputLine = document.getElementById('docker-terminal-input-line');
+        if (output) output.style.display = 'block';
+        if (inputLine) inputLine.style.display = 'flex';
+        
+        this.isInViMode = false;
+        document.removeEventListener('keydown', this.viKeyHandler, true);
+        
+        // Refocus main terminal input
+        const input = document.getElementById('docker-terminal-input');
+        if (input) input.focus();
     }
 
     /**
@@ -510,6 +1264,12 @@ class DockerTerminal {
             '',
             '  docker stop <service-name>',
             '    Stop a specific Network Function',
+            '',
+            '  ls',
+            '    List files in current directory',
+            '',
+            '  vi <file-name>',
+            '    Open file in read-only viewer (e.g., vi docker-compose.yml)',
             '',
             '  cls / clear',
             '    Clear the terminal screen',
@@ -1154,6 +1914,11 @@ class DockerTerminal {
         }
 
         this.isWatching = true;
+
+        // Hide input line while watch is running
+        const inputLine = document.getElementById('docker-terminal-input-line');
+        if (inputLine) inputLine.style.display = 'none';
+
         this.addTerminalLine(output, 'Starting watch mode (refreshes every 1 second)...', 'info');
         this.addTerminalLine(output, 'Press Ctrl+C to stop watching', 'info');
         this.addTerminalLine(output, '', 'blank');
@@ -1161,18 +1926,33 @@ class DockerTerminal {
         // Store initial content length to know where to clear from
         const initialLength = output.querySelectorAll('.docker-terminal-line').length;
 
+        const content = document.getElementById('docker-terminal-content');
+
         // Initial display
         this.showDockerComposePS(output);
 
-        // Refresh every 1 second
+        // Refresh every 1 second — replace lines in-place to avoid scroll jumps
         this.watchInterval = setInterval(() => {
-            // Remove all lines added after the initial watch start message
+            // Lock scroll position before DOM changes
+            const isAtBottom = !content || content.scrollTop + content.clientHeight >= content.scrollHeight - 5;
+            const savedScrollTop = content ? content.scrollTop : 0;
+
+            // Remove lines added after the initial messages
             const allLines = output.querySelectorAll('.docker-terminal-line');
             const linesToRemove = Array.from(allLines).slice(initialLength);
             linesToRemove.forEach(line => line.remove());
 
-            // Add fresh output
+            // Add fresh output (addTerminalLine auto-scrolls, we'll correct after)
             this.showDockerComposePS(output);
+
+            // Restore scroll position — only follow bottom if user was already there
+            if (content) {
+                if (isAtBottom) {
+                    content.scrollTop = content.scrollHeight;
+                } else {
+                    content.scrollTop = savedScrollTop;
+                }
+            }
         }, 1000);
     }
 
@@ -1180,11 +1960,33 @@ class DockerTerminal {
      * Stop watch mode
      */
     stopWatch() {
+        console.log('🛑 stopWatch() called, isWatching:', this.isWatching, 'watchInterval:', this.watchInterval);
+        
         if (this.watchInterval) {
             clearInterval(this.watchInterval);
             this.watchInterval = null;
-            this.isWatching = false;
         }
+        
+        this.isWatching = false;
+
+        // Restore input line
+        const inputLine = document.getElementById('docker-terminal-input-line');
+        if (inputLine) {
+            inputLine.style.display = 'flex';
+            console.log('✅ Input line restored');
+        } else {
+            console.warn('⚠️ Input line not found');
+        }
+        
+        const input = document.getElementById('docker-terminal-input');
+        if (input) {
+            input.focus();
+            console.log('✅ Input focused');
+        } else {
+            console.warn('⚠️ Input element not found');
+        }
+        
+        console.log('✅ Watch mode stopped');
     }
 
     /**
@@ -1249,11 +2051,28 @@ class DockerTerminal {
             // Calculate creation time
             const createdAt = nf.createdAt || nf.statusTimestamp || Date.now();
             const created = this.formatCreationTimeForWatch(createdAt);
-            const status = nf.status === 'stable' ? `Up ${created} (healthy)` : `Up ${created} (starting)`;
+            
+            // Status display based on NF status
+            let status, statusColor, statusIcon;
+            if (nf.status === 'stable') {
+                status = `Up ${created} (healthy)`;
+                statusColor = 'success';
+                statusIcon = '🟢';
+            } else if (nf.status === 'starting') {
+                status = `Up ${created} (starting)`;
+                statusColor = 'warning';
+                statusIcon = '🟡';
+            } else if (nf.status === 'stopped') {
+                status = `Exited (0) ${created}`;
+                statusColor = 'error';
+                statusIcon = '🔴';
+            } else {
+                status = `Up ${created} (${nf.status})`;
+                statusColor = 'info';
+                statusIcon = '⚪';
+            }
+            
             const ports = this.getPortsForNF(nf);
-
-            const statusColor = nf.status === 'stable' ? 'success' : 'warning';
-            const statusIcon = nf.status === 'stable' ? '🟢' : '🔴';
 
             const line = `${serviceName.padEnd(12)} ${image.padEnd(38)} "${serviceName}"   ${serviceName.padEnd(15)} ${created.padEnd(20)} ${status.padEnd(28)} ${ports}`;
             this.addTerminalLine(output, `${statusIcon} ${line}`, statusColor);
@@ -1309,23 +2128,13 @@ class DockerTerminal {
             }
         }
 
-        // Also clear buses and bus connections
+        // Remove only bus connections for the removed core NFs (preserve buses themselves)
         if (window.dataStore) {
-            const allBuses = window.dataStore.getAllBuses() || [];
+            const removedNFIds = new Set(nfIds.map(n => n.id));
             const allBusConnections = window.dataStore.getAllBusConnections() || [];
-
-            if (allBuses.length > 0 || allBusConnections.length > 0) {
-                const busConnectionIds = allBusConnections.map(bc => bc.id);
-                const busIds = allBuses.map(bus => bus.id);
-
-                busConnectionIds.forEach(busConnId => {
-                    window.dataStore.removeBusConnection(busConnId);
-                });
-
-                busIds.forEach(busId => {
-                    window.dataStore.removeBus(busId);
-                });
-            }
+            allBusConnections
+                .filter(bc => removedNFIds.has(bc.nfId))
+                .forEach(bc => window.dataStore.removeBusConnection(bc.id));
         }
 
         // Remove network
@@ -1526,6 +2335,7 @@ class DockerTerminal {
             return;
         }
 
+        const previousStatus = nf.status;
         this.addTerminalLine(output, `Starting ${nf.name}...`, 'info');
 
         if (!nf.createdAt) {
@@ -1535,11 +2345,31 @@ class DockerTerminal {
         nf.statusTimestamp = Date.now();
         window.dataStore.updateNF(nf.id, nf);
 
+        // Add log entry for the start event
+        if (window.logEngine) {
+            window.logEngine.addLog(nf.id, 'INFO', `${nf.name} starting via docker command`, {
+                previousStatus: previousStatus,
+                newStatus: 'starting',
+                command: `docker start ${serviceName}`,
+                timestamp: new Date().toISOString()
+            });
+        }
+
         setTimeout(() => {
             if (window.dataStore?.getNFById(nf.id)) {
                 nf.status = 'stable';
                 nf.statusTimestamp = Date.now();
                 window.dataStore.updateNF(nf.id, nf);
+                
+                // Add log entry when service becomes stable
+                if (window.logEngine) {
+                    window.logEngine.addLog(nf.id, 'SUCCESS', `${nf.name} is now STABLE and ready`, {
+                        previousStatus: 'starting',
+                        newStatus: 'stable',
+                        uptime: '5 seconds'
+                    });
+                }
+                
                 if (window.canvasRenderer) {
                     window.canvasRenderer.render();
                 }
@@ -1581,17 +2411,29 @@ class DockerTerminal {
         }
 
         this.addTerminalLine(output, `Stopping ${nf.name}...`, 'info');
+        
+        // Update status to stopped
+        const previousStatus = nf.status;
         nf.status = 'stopped';
         nf.statusTimestamp = Date.now();
         window.dataStore.updateNF(nf.id, nf);
 
         this.addTerminalLine(output, `✅ ${nf.name} stopped`, 'success');
 
+        // Add log entry for the stop event
+        if (window.logEngine) {
+            window.logEngine.addLog(nf.id, 'WARNING', `${nf.name} stopped via docker command`, {
+                previousStatus: previousStatus,
+                newStatus: 'stopped',
+                command: `docker stop ${serviceName}`,
+                timestamp: new Date().toISOString()
+            });
+        }
+
         if (window.canvasRenderer) {
             window.canvasRenderer.render();
         }
     }
-
     /**
      * Add line to terminal output
      * @param {HTMLElement} output - Output element
@@ -1603,7 +2445,15 @@ class DockerTerminal {
         line.className = `docker-terminal-line docker-terminal-${type}`;
         line.innerHTML = text || '&nbsp;';
         output.appendChild(line);
-        output.scrollTop = output.scrollHeight;
+        
+        // Scroll the content container, not the output element
+        const content = document.getElementById('docker-terminal-content');
+        if (content) {
+            // Use requestAnimationFrame to ensure DOM has updated before scrolling
+            requestAnimationFrame(() => {
+                content.scrollTop = content.scrollHeight;
+            });
+        }
     }
 
     /**
@@ -1857,133 +2707,93 @@ class DockerTerminal {
     }
 
     /**
-     * Setup window controls (drag, resize, minimize, maximize)
+     * Setup window controls (simplified - no drag, resize, or window buttons)
      * @param {HTMLElement} terminalModal - Terminal modal element
      */
     setupWindowControls(terminalModal) {
         const terminalWindow = document.getElementById('docker-terminal-window');
-        const titlebar = document.getElementById('docker-terminal-titlebar');
-        const minimizeBtn = document.getElementById('docker-terminal-minimize');
-        const maximizeBtn = document.getElementById('docker-terminal-maximize');
-        const resizeHandle = document.getElementById('docker-terminal-resize-handle');
+        if (!terminalWindow) return;
 
-        if (!terminalWindow || !titlebar) return;
+        // Don't set position - let flexbox handle centering
+        // Remove any inline positioning
+        terminalWindow.style.left = '';
+        terminalWindow.style.top = '';
+        terminalWindow.style.transform = '';
 
-        // Dragging functionality
-        let isDragging = false;
-        let dragStartX = 0;
-        let dragStartY = 0;
-        let windowStartX = 0;
-        let windowStartY = 0;
+        this.setupDragResizeControls(terminalModal);
+    }
 
-        titlebar.addEventListener('mousedown', (e) => {
-            if (e.target.closest('.docker-terminal-btn')) return;
-            if (this.terminalState.isMaximized) return;
+    /**
+     * Apply saved terminal state (simplified - no state management)
+     */
+    applyTerminalState() {
+        // Simplified - terminal is now a fixed centered modal
+        // No state to restore
+    }
 
-            isDragging = true;
-            dragStartX = e.clientX;
-            dragStartY = e.clientY;
+    /**
+     * Save terminal state to localStorage (simplified - no state to save)
+     */
+    saveTerminalState() {
+        // Simplified - no state to save
+    }
 
-            const rect = terminalWindow.getBoundingClientRect();
-            windowStartX = rect.left;
-            windowStartY = rect.top;
+    /**
+     * Setup drag, resize and window button controls
+     * @param {HTMLElement} terminalModal - Terminal modal element
+     */
+    setupDragResizeControls(terminalModal) {
+        const terminalWindow = document.getElementById('docker-terminal-window');
+        if (!terminalWindow) return;
 
-            titlebar.style.cursor = 'grabbing';
-            e.preventDefault();
-        });
+        const MIN_W = 400, MIN_H = 280;
+        let resizing = null;
 
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-
-            const deltaX = e.clientX - dragStartX;
-            const deltaY = e.clientY - dragStartY;
-
-            const newX = windowStartX + deltaX;
-            const newY = windowStartY + deltaY;
-
-            const maxX = window.innerWidth - terminalWindow.offsetWidth;
-            const maxY = window.innerHeight - terminalWindow.offsetHeight;
-
-            this.terminalState.x = Math.max(0, Math.min(newX, maxX));
-            this.terminalState.y = Math.max(0, Math.min(newY, maxY));
-
-            terminalWindow.style.left = this.terminalState.x + 'px';
-            terminalWindow.style.top = this.terminalState.y + 'px';
-            terminalWindow.style.transform = 'none';
-        });
-
-        document.addEventListener('mouseup', () => {
-            if (isDragging) {
-                isDragging = false;
-                titlebar.style.cursor = 'grab';
-                this.saveTerminalState();
-            }
-        });
-
-        // Resizing functionality
-        let isResizing = false;
-        let resizeStartX = 0;
-        let resizeStartY = 0;
-        let startWidth = 0;
-        let startHeight = 0;
-
-        if (resizeHandle) {
-            resizeHandle.addEventListener('mousedown', (e) => {
-                if (this.terminalState.isMaximized) return;
-                isResizing = true;
-                resizeStartX = e.clientX;
-                resizeStartY = e.clientY;
-                startWidth = terminalWindow.offsetWidth;
-                startHeight = terminalWindow.offsetHeight;
+        terminalWindow.querySelectorAll('.docker-terminal-resize-handle').forEach(handle => {
+            handle.addEventListener('mousedown', (e) => {
+                const rect = terminalWindow.getBoundingClientRect();
+                resizing = {
+                    startX: e.clientX, 
+                    startY: e.clientY,
+                    startW: rect.width, 
+                    startH: rect.height
+                };
+                terminalWindow.style.transition = 'none';
                 e.preventDefault();
                 e.stopPropagation();
             });
-        }
+        });
 
         document.addEventListener('mousemove', (e) => {
-            if (!isResizing) return;
+            if (!resizing) return;
 
-            const deltaX = e.clientX - resizeStartX;
-            const deltaY = e.clientY - resizeStartY;
+            const dx = e.clientX - resizing.startX;
+            const dy = e.clientY - resizing.startY;
 
-            const newWidth = Math.max(400, Math.min(startWidth + deltaX, window.innerWidth - 100));
-            const newHeight = Math.max(300, Math.min(startHeight + deltaY, window.innerHeight - 100));
+            // Grow/shrink symmetrically from center — use the larger delta axis
+            const delta = Math.abs(dx) > Math.abs(dy) ? dx : dy;
 
-            this.terminalState.width = newWidth;
-            this.terminalState.height = newHeight;
+            let newW = Math.max(MIN_W, resizing.startW + delta * 2);
+            let newH = Math.max(MIN_H, resizing.startH + delta * 2);
 
-            terminalWindow.style.width = newWidth + 'px';
-            terminalWindow.style.height = newHeight + 'px';
+            // Constrain to viewport size with padding
+            const MAX_W = window.innerWidth - 40;  // 20px padding on each side
+            const MAX_H = window.innerHeight - 40; // 20px padding on top and bottom
+
+            newW = Math.min(newW, MAX_W);
+            newH = Math.min(newH, MAX_H);
+
+            // Just set width and height - flexbox keeps it centered
+            terminalWindow.style.width  = newW + 'px';
+            terminalWindow.style.height = newH + 'px';
         });
 
         document.addEventListener('mouseup', () => {
-            if (isResizing) {
-                isResizing = false;
-                this.saveTerminalState();
+            if (resizing) {
+                resizing = null;
+                terminalWindow.style.transition = '';
             }
         });
-
-        // Minimize button
-        if (minimizeBtn) {
-            minimizeBtn.addEventListener('click', () => {
-                this.minimizeTerminal(terminalWindow);
-            });
-        }
-
-        // Maximize button
-        if (maximizeBtn) {
-            maximizeBtn.addEventListener('click', () => {
-                this.toggleMaximize(terminalWindow);
-            });
-        }
-
-        // Double-click titlebar to maximize/restore
-        titlebar.addEventListener('dblclick', (e) => {
-            if (e.target.closest('.docker-terminal-btn')) return;
-            this.toggleMaximize(terminalWindow);
-        });
-
-        titlebar.style.cursor = 'grab';
     }
 
     /**
@@ -2051,52 +2861,6 @@ class DockerTerminal {
         }
 
         this.saveTerminalState();
-    }
-
-    /**
-     * Apply saved terminal state
-     */
-    applyTerminalState() {
-        const terminalWindow = document.getElementById('docker-terminal-window');
-        if (!terminalWindow) return;
-
-        const savedState = localStorage.getItem('dockerTerminalState');
-        if (savedState) {
-            try {
-                const state = JSON.parse(savedState);
-                this.terminalState = { ...this.terminalState, ...state };
-            } catch (e) {
-                console.warn('Failed to load terminal state:', e);
-            }
-        }
-
-        terminalWindow.style.width = this.terminalState.width + 'px';
-        terminalWindow.style.height = this.terminalState.height + 'px';
-
-        if (this.terminalState.x !== null && this.terminalState.y !== null) {
-            terminalWindow.style.left = this.terminalState.x + 'px';
-            terminalWindow.style.top = this.terminalState.y + 'px';
-            terminalWindow.style.transform = 'none';
-        }
-
-        if (this.terminalState.isMaximized) {
-            this.toggleMaximize(terminalWindow);
-        }
-
-        if (this.terminalState.isMinimized) {
-            this.minimizeTerminal(terminalWindow);
-        }
-    }
-
-    /**
-     * Save terminal state to localStorage
-     */
-    saveTerminalState() {
-        try {
-            localStorage.setItem('dockerTerminalState', JSON.stringify(this.terminalState));
-        } catch (e) {
-            console.warn('Failed to save terminal state:', e);
-        }
     }
 
     /**

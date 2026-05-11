@@ -15,7 +15,7 @@
         <!-- Top Toolbar -->
         <div class="toolbar">
             <div class="toolbar-left">
-                <h1>🌐 User Profile Management Dashboard</h1>
+                <h1>🌐 User Profile Management</h1>
             </div>
             <div class="toolbar-right">
                 <!-- Main action buttons -->
@@ -61,7 +61,8 @@
                 <div id="config-panel" class="config-panel">
                     <div class="config-panel-header">
                         <h3>⚙️ Configuration</h3>
-                        <button id="btn-toggle-config" class="btn-toggle-config" title="Hide/Show Configuration Panel (Ctrl+K)">
+                        <button id="btn-toggle-config" class="btn-toggle-config"
+                            title="Hide/Show Configuration Panel (Ctrl+K)">
                             <span id="config-toggle-icon">◀</span>
                         </button>
                     </div>
@@ -122,36 +123,19 @@
             <h2>📚 5G Service-Based Architecture Guide</h2>
             <div class="help-content">
                 <div class="help-section">
-                    <h3>🏗️ Reference Architecture</h3>
-                    <div class="architecture-diagram">
-                        <img id="sba-diagram" src="images/sba/sba.jpg" alt="5G Service-Based Architecture"
-                            style="width: 100%; max-width: 800px; height: auto; background: #1a252f; border-radius: 8px;">
-                    </div>
-                </div>
-
-                <div class="help-section">
-                    <h3>🚀 Quick Start Guide</h3>
-                    <ol class="help-steps">
-                        <li><strong>Create Service Buses:</strong> Click "📊 Add Bus Line" to create Control Plane and
-                            User Plane buses</li>
-                        <li><strong>Add Network Functions:</strong> Click "➕ Add NF" to add AMF, SMF, UPF, etc.</li>
-                        <li><strong>Connect Components:</strong> Use "Select Source" → "Select Destination" to connect
-                            NFs to buses</li>
-                        <li><strong>Validate Topology:</strong> Click "✓ Validate" to check your 5G network design</li>
+                    <h3>🚀 Simulation Steps</h3>
+                    <ol class="help-steps" style="line-height: 2;">
+                        <li><strong>Core Deployment:</strong> Use terminal or 🚀 <strong>One-Click Deploy</strong> to start all network functions.</li>
+                        <li><strong>gNB Setup:</strong> Select gNB, configure its IP/Port, and deploy it to bridge UEs and CORE.</li>
+                        <li><strong>UDR Verification:</strong> Select UDR and click "Show Subscriber Info" to verify registered UE data.</li>
+                        <li><strong>Subscription Edit:</strong> Update UE parameters like DNN in UDR and save changes.</li>
+                        <li><strong>UE Activation:</strong> Select UE, enter matching configuration, and start to verify 5G connectivity.</li>
                     </ol>
                 </div>
-
-                <div class="help-section">
-                    <h3>🔗 Connection Types</h3>
-                    <ul class="help-list">
-                        <li><span class="connection-type nf-bus">NF → Bus:</span> Connect Network Functions to Service
-                            Buses</li>
-                        <li><span class="connection-type bus-nf">Bus → NF:</span> Connect Service Buses to Network
-                            Functions</li>
-                        <li><span class="connection-type bus-bus">Bus → Bus:</span> Create bridges between different
-                            service buses</li>
-                        <li><span class="connection-type nf-nf">NF → NF:</span> Direct point-to-point connections</li>
-                    </ul>
+                <div class="help-section" style="margin-top: 20px; border-top: 1px solid #333; padding-top: 15px;">
+                    <p style="text-align: center;">
+                        <a href="../procedure.html" target="_blank" style="color: #3498db; text-decoration: none; font-weight: bold;">📖 View Full Procedure for More Information</a>
+                    </p>
                 </div>
             </div>
             <button id="help-close" class="btn btn-primary btn-block">Close</button>

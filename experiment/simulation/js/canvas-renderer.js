@@ -229,7 +229,16 @@ class CanvasRenderer {
         // HTTP Protocol Badge removed for cleaner visual - protocol info available in logs only
 
         // Enhanced status indicator with better visibility
-        const statusColor = window.nfManager?.getStatusColor(nf.status) || '#95a5a6';
+        let statusColor;
+        if (nf.status === 'stable') {
+            statusColor = '#4caf50'; // Green for stable
+        } else if (nf.status === 'starting') {
+            statusColor = '#ff9800'; // Orange/Yellow for starting
+        } else if (nf.status === 'stopped') {
+            statusColor = '#e74c3c'; // Red for stopped
+        } else {
+            statusColor = '#95a5a6'; // Gray for unknown
+        }
         
         // Draw status indicator with glow effect
         this.ctx.shadowColor = statusColor;
@@ -245,8 +254,8 @@ class CanvasRenderer {
         this.ctx.lineWidth = 2;
         this.ctx.stroke();
         
-        // Add status text
-        if (nf.status === 'starting') {
+        // Add status text for non-stable states
+        if (nf.status === 'starting' || nf.status === 'stopped') {
             this.ctx.fillStyle = '#ffffff';
             this.ctx.font = 'bold 8px Arial';
             this.ctx.textAlign = 'center';
