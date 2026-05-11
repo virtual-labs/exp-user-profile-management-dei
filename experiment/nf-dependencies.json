@@ -293,5 +293,18 @@
       "Create database tables (subscribers, credentials, profiles)"
     ],
     "errors": {}
+  },
+  "ext-dn": {
+    "name": "External Data Network",
+    "required": [],
+    "optional": ["UPF"],
+    "description": "External Data Network provides internet connectivity via UPF",
+    "startupChecks": [
+      "Initialize external network interface",
+      "Configure routing tables",
+      "Setup NAT/firewall rules",
+      "Verify internet connectivity"
+    ],
+    "errors": {}
   }
 }

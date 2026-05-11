@@ -259,6 +259,13 @@ class LogEngine {
         // ==================================
         if (scenario.final_status) {
             const depInfo = this.dependencies[nf.type];
+            
+            // Check if depInfo exists and has required/optional arrays
+            if (!depInfo || !depInfo.required || !depInfo.optional) {
+                console.warn(`⚠️ No dependency info found for ${nf.type}, skipping final status check`);
+                return;
+            }
+            
             let hasErrors = false;
             let hasWarnings = false;
 
@@ -316,6 +323,13 @@ class LogEngine {
         if (!this.dependencies || !this.dependencies[nf.type]) return;
 
         const depInfo = this.dependencies[nf.type];
+        
+        // Safety check for required and optional arrays
+        if (!depInfo.required || !depInfo.optional) {
+            console.warn(`⚠️ Incomplete dependency info for ${nf.type}`);
+            return;
+        }
+        
         let hasErrors = false;
 
         depInfo.required.forEach((requiredType, index) => {

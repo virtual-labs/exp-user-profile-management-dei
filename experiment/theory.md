@@ -3,29 +3,28 @@ In the 5G Core (5GC), every subscriber (UE) must be authenticated, authorized, a
 
 This entire data-handling process is called:
 
-### User Profile Management
+### 1.1 User Profile Management
 User Profile Management ensures that:
 * The network knows who the user is
 * What services the user is permitted to use
 * What slices they belong to
 * How they should be authenticated
 * What data speeds and QoS levels they should receive
-* Which DNN/APN (like "internet" or "ims") the user can access
+* Which DNN/APN (like internet or ims) the user can access
 
 To perform all of these tasks, 5G Core uses two major functions:
-1. **UDM** – Unified Data Management
-2. **UDR** – Unified Data Repository
+**UDM** – Unified Data Management
+**UDR** – Unified Data Repository
 
 Together, they form the backbone of subscriber management in the 5G Core.
 
-<details>
-<summary><strong>2. Why Subscriber Profile Management is Needed in 5G</strong></summary>
+## 2. Why Subscriber Profile Management is Needed in 5G
 
 <img src="images/fig-1.svg" alt="5G Core Network" width="45%">
 
 *Fig: 5G Core Network*
 
-## 2. Why Subscriber Profile Management is Needed in 5G
+### 2.1 Why Subscriber Profile Management is Needed in 5G
 5G Core is service-based, meaning each network function performs a specialized task. However, subscriber information is needed almost everywhere:
 
 * AMF needs subscriber data during registration
@@ -46,12 +45,6 @@ Without proper subscriber profile management:
 | Authentication failure | Incorrect K/OPc keys |
 
 Thus, subscriber profile management is fundamental to 5G Core operation.
-
-</details>
-
-
-<details>
-<summary><strong>3. Understanding UDM & UDR</strong></summary>
 
 ## 3. Understanding UDM & UDR
 
@@ -98,7 +91,7 @@ UDM is like the central manager or brain that knows how subscriber data should b
 ### 3.2 What is UDR? (Unified Data Repository)
 UDR is the central database that stores all subscriber information permanently.
 
-#### UDR Responsibilities (In Depth):
+- #### UDR Responsibilities (In Depth):
 
 **A. Persistent Storage**
 Stores:
@@ -136,12 +129,9 @@ UDR is built to handle millions of subscribers with extremely high reliability.
 
 *Fig: UDM and UDR relationship*
 
-</details>
+## 4. Relationship Between UDM and UDR
 
-<details>
-<summary><strong>4. Relationship Between UDM and UDR</strong></summary>
-
-## 4. Relationship Between UDM and UDR (Very Clear)
+### 4.1 Relationship Between UDM and UDR (Very Clear)
 The relationship is very simple:
 
 * **UDR stores the data**
@@ -152,23 +142,10 @@ Think of it like a college:
 * **UDM** = Office clerk or data manager
 * **AMF/SMF/AUSF** = Departments that need student information
 
-**Data Flow:**
-```
-Other NFs (AMF, SMF, AUSF, PCF)
-        ↓
-      UDM (Manager/Processor)
-        ↓
-      UDR (Database)
-```
-
 This centralized system ensures efficiency and correctness.
 
-</details>
-
-<details>
-<summary><strong>5. What is a Subscriber Profile?</strong></summary>
-
 ## 5. What is a Subscriber Profile?
+
 A subscriber profile is like a complete identity card + permission sheet for a UE in the 5G network.
 
 It contains:
@@ -201,9 +178,9 @@ Contains:
 * Session continuity preferences
 
 Example DNN list:
-* "oai"
-* "internet"
-* "ims"
+* oai
+* internet
+* ims
 
 ### 5.5 Network Slice Subscription
 Contains list of slices the UE is allowed to use:
@@ -224,12 +201,8 @@ Defines:
 
 If status = **BARRED** → UE cannot register.
 
-</details>
-
-<details>
-<summary><strong>6. How UDM/UDR Work During Registration</strong></summary>
-
 ## 6. How UDM/UDR Work During Registration
+
 When the UE sends a Registration Request, AMF begins a chain of operations.
 
 ### Step-by-Step:
@@ -271,16 +244,12 @@ AMF checks:
 **Step 8: Registration Accept**
 UE is successfully registered.
 
-</details>
-
-<details>
-<summary><strong>7. How UDM/UDR Work During PDU Session Establishment</strong></summary>
+## 7. How UDM/UDR Work During PDU Session Establishment
 
 <img src="images/fig-3.svg" alt="5G Registration procedure" width="45%">
 
 *Fig: 5G Registration procedure* 
 
-## 7. How UDM/UDR Work During PDU Session Establishment
 When UE wants internet:
 
 **Step 1: UE → AMF: PDU Session Request**
@@ -301,12 +270,8 @@ Fetch SM subscription data.
 * If allowed → SMF creates session
 * If not allowed → reject session immediately
 
-</details>
-
-<details>
-<summary><strong>8. Importance of UDM/UDR in Real 5G Networks</strong></summary>
-
 ## 8. Importance of UDM/UDR in Real 5G Networks
+
 In real telecom networks like Jio, Airtel, Verizon etc.:
 
 * UDR stores millions of subscriber profiles
@@ -317,17 +282,12 @@ In real telecom networks like Jio, Airtel, Verizon etc.:
 
 Without these two functions, the 5G network cannot operate.
 
-</details>
-
-<details>
-<summary><strong>9. Real-Time Example</strong></summary>
+## 9. Real-Time Example
 
 <img src="images/fig-4.svg" alt="PDU Session Establishment with Subscriber Data Validation" width="45%">
 
 *Fig: PDU Session Establishment with Subscriber Data Validation*
 
-
-## 9. Real-Time Example
 Imagine a user who has a plan that includes:
 
 * Internet
@@ -345,5 +305,3 @@ If the user upgrades their plan:
 The operator updates the subscriber profile.
 
 UDM fetches this updated profile and applies new permissions immediately when the UE registers again.
-
-</details> 

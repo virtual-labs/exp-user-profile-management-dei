@@ -596,6 +596,8 @@ class UIController {
 
         console.log('✅ Topology cleared');
         alert('Topology cleared successfully!');
+        // Full refresh ensures complete re-initialization of all managers and UI state
+        window.location.reload();
     }
 
     /**
@@ -966,14 +968,11 @@ class UIController {
                 
                 <button class="btn btn-danger btn-block" id="btn-delete-nf" style="margin-top: 15px;">Delete UE</button>
                 
-                <div class="troubleshoot-section">
-                    <h4>🔧 Troubleshoot</h4>
-                    <p class="config-hint">Open Windows-style terminal for network diagnostics</p>
-                    
-                    <button class="btn btn-terminal btn-block" id="btn-open-terminal">
-                        💻 Open Command Prompt
-                    </button>
-                </div>
+               
+                <button class="btn btn-terminal btn-block" id="btn-open-terminal">
+                    💻 Open Command Prompt
+                </button>
+                
             `;
         } else {
             // Standard configuration for other NF types
@@ -1026,14 +1025,11 @@ class UIController {
             </div>
             ` : ''}
             
-            <div class="troubleshoot-section">
-                <h4>🔧 Troubleshoot</h4>
-                <p class="config-hint">Open Windows-style terminal for network diagnostics</p>
-                
-                <button class="btn btn-terminal btn-block" id="btn-open-terminal">
-                    💻 Open Command Prompt
-                </button>
-            </div>
+           
+            <button class="btn btn-terminal btn-block" id="btn-open-terminal">
+                💻 Open Command Prompt
+            </button>
+            
         `;
         }
 
@@ -2093,30 +2089,19 @@ class UIController {
         const nf = window.dataStore?.getNFById(nfId);
         if (!nf) return;
 
-        // Terminal constraints: allow at most two windows (UE + ext-dn combo)
-        const openWindows = Array.from(document.querySelectorAll('.windows-terminal-window'));
-        const typesOpen = new Set(openWindows.map(w => w.dataset.terminalType));
-        const isUEorExt = nf.type === 'UE' || nf.type === 'ext-dn';
-        if (isUEorExt) {
-            if (typesOpen.size >= 2) {
-                alert('Only two terminals allowed at once: one UE and one ext-dn.');
-                return;
-            }
-            if (typesOpen.size === 1) {
-                const existing = [...typesOpen][0];
-                if (existing === nf.type) {
-                    alert(`Second terminal must be the other type (${nf.type === 'UE' ? 'ext-dn' : 'UE'}).`);
-                    return;
-                }
-            }
-        }
+        // Only ONE NF terminal allowed at a time
+        // Close any existing NF terminal before opening a new one
+        const existingTerminals = document.querySelectorAll('.windows-terminal-modal');
+        existingTerminals.forEach(terminal => {
+            terminal.remove();
+        });
 
         // Create terminal modal
         this.createTerminalModal(nf);
     }
 
     /**
-     * Create Windows-style terminal modal
+     * Create Windows-style terminal modal - Matching Main Terminal Style
      * @param {Object} nf - Network Function
      */
     createTerminalModal(nf) {
@@ -2134,28 +2119,23 @@ class UIController {
         terminalModal.id = modalId;
         terminalModal.className = 'windows-terminal-modal';
         
+        // NO resize handles - NF terminals are NOT resizable (only main terminal is)
         terminalModal.innerHTML = `
-            <div class="windows-terminal-window" data-terminal-type="${nf.type}" style="position:absolute; left: 10vw; top: 10vh;">
+            <div class="windows-terminal-window" data-terminal-type="${nf.type}">
                 <div class="windows-terminal-titlebar">
                     <div class="terminal-title">
-                        <span class="terminal-icon">⬛</span>
-                        Command Prompt - ${nf.name} (${nf.config.ipAddress})
+                        <span class="terminal-icon">💻</span>
+                        ${nf.name} Terminal (${nf.config.ipAddress})
                     </div>
                     <div class="terminal-controls">
-                        <button class="terminal-btn minimize">−</button>
-                        <button class="terminal-btn maximize">□</button>
-                        <button class="terminal-btn close" id="terminal-close">×</button>
+                        <button class="terminal-btn close" id="terminal-close" title="Close">×</button>
                     </div>
                 </div>
                 <div class="windows-terminal-content" id="terminal-content">
-                    <div class="terminal-header">
-                        Microsoft Windows [Version 10.0.19045.3570]<br>
-                        (c) Microsoft Corporation. All rights reserved.<br><br>
-                    </div>
                     <div class="terminal-output" id="terminal-output"></div>
-                    <div class="terminal-input-line">
-                        <span class="terminal-prompt">C:\\${nf.name}></span>
-                        <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" spellcheck="false">
+                    <div class="terminal-input-line" id="terminal-input-line">
+                        <span class="terminal-prompt">${nf.name.toLowerCase()}@~$</span>
+                        <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" spellcheck="false" autofocus>
                     </div>
                 </div>
             </div>
@@ -2171,15 +2151,19 @@ class UIController {
             terminalModal.classList.add('show');
         }, 10);
 
-        // Focus on input
+        // Focus on input and scroll to bottom
         const input = document.getElementById('terminal-input');
+        const content = document.getElementById('terminal-content');
         if (input) {
             input.focus();
+        }
+        if (content) {
+            content.scrollTop = content.scrollHeight;
         }
     }
 
     /**
-     * Setup Windows terminal functionality
+     * Setup Windows terminal functionality - Matching Main Terminal Style
      * @param {Object} nf - Network Function
      * @param {HTMLElement} terminalModal - Terminal modal element
      */
@@ -2187,10 +2171,18 @@ class UIController {
         const win = terminalModal.querySelector('.windows-terminal-window');
         const input = terminalModal.querySelector('#terminal-input');
         const output = terminalModal.querySelector('#terminal-output');
+        const content = terminalModal.querySelector('#terminal-content');
         const closeBtn = terminalModal.querySelector('#terminal-close');
         
         let commandHistory = [];
         let historyIndex = -1;
+
+        // Scroll to bottom helper
+        const scrollToBottom = () => {
+            if (content) {
+                content.scrollTop = content.scrollHeight;
+            }
+        };
 
         // Close button - cleanup iperf3 server if running
         closeBtn.addEventListener('click', () => {
@@ -2203,6 +2195,13 @@ class UIController {
             setTimeout(() => {
                 terminalModal.remove();
             }, 300);
+        });
+
+        // Keep focus on input when clicking in terminal
+        content.addEventListener('click', (e) => {
+            if (e.target !== input) {
+                input.focus();
+            }
         });
 
         // Make window draggable by titlebar
@@ -2257,7 +2256,16 @@ class UIController {
             if (e.ctrlKey && e.key === 'c' && this.iperf3Servers.has(nf.id)) {
                 e.preventDefault();
                 this.stopIperf3Server(nf, output);
-                input.value = '';
+                this.addTerminalLine(output, '^C', 'info');
+                scrollToBottom();
+                return;
+            }
+
+            // Handle Ctrl+L to clear screen
+            if (e.ctrlKey && e.key === 'l') {
+                e.preventDefault();
+                output.innerHTML = '';
+                scrollToBottom();
                 return;
             }
             
@@ -2268,20 +2276,31 @@ class UIController {
                     commandHistory.push(command);
                     historyIndex = commandHistory.length;
 
-                    // Display command
-                    this.addTerminalLine(output, `C:\\${nf.name}>${command}`, 'command');
+                    // Display command with prompt (like real terminal)
+                    this.addTerminalLine(output, `${nf.name.toLowerCase()}@~$ ${command}`, 'command');
                     
                     // Clear input
                     input.value = '';
 
                     // Process command
                     await this.processWindowsCommand(nf, command, output);
+                    
+                    // Scroll to bottom after command execution
+                    scrollToBottom();
+                } else {
+                    // Empty command - just show prompt
+                    this.addTerminalLine(output, `${nf.name.toLowerCase()}@~$`, 'command');
+                    scrollToBottom();
                 }
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
                 if (historyIndex > 0) {
                     historyIndex--;
                     input.value = commandHistory[historyIndex];
+                    // Move cursor to end
+                    setTimeout(() => {
+                        input.setSelectionRange(input.value.length, input.value.length);
+                    }, 0);
                 }
             } else if (e.key === 'ArrowDown') {
                 e.preventDefault();
@@ -2292,13 +2311,29 @@ class UIController {
                     historyIndex = commandHistory.length;
                     input.value = '';
                 }
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                const partial = input.value.toLowerCase();
+                const commands = ['help', 'clear', 'ping', 'ipconfig', 'status', 'exit', 'cls', 'dir', 'systeminfo', 'netstat', 'ifconfig', 'ip addr'];
+                const matches = commands.filter(cmd => cmd.startsWith(partial));
+                
+                if (matches.length === 1) {
+                    input.value = matches[0];
+                } else if (matches.length > 1) {
+                    this.addTerminalLine(output, '', 'blank');
+                    this.addTerminalLine(output, matches.join('  '), 'info');
+                    this.addTerminalLine(output, '', 'blank');
+                    // We don't need to recreate input because this is a standard input field
+                }
             }
         });
 
-        // Initial welcome message
+        // Initial welcome message - displayed as terminal output lines
         this.addTerminalLine(output, `Connected to ${nf.name} (${nf.config.ipAddress})`, 'info');
-        this.addTerminalLine(output, 'Type "help" for available commands.', 'info');
-        this.addTerminalLine(output, '', 'blank');
+        this.addTerminalLine(output, 'Type \'help\' for available commands', 'info');
+        
+        // Scroll to bottom on init so prompt is visible right after welcome message
+        scrollToBottom();
     }
 
     /**
@@ -2357,8 +2392,11 @@ class UIController {
         line.innerHTML = text || '&nbsp;';
         output.appendChild(line);
         
-        // Auto-scroll to bottom
-        output.scrollTop = output.scrollHeight;
+        // Auto-scroll the content container (parent) so the prompt line stays visible
+        const container = output.parentElement;
+        if (container) {
+            container.scrollTop = container.scrollHeight;
+        }
     }
 
     /**
