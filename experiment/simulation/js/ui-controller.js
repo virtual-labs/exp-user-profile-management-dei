@@ -2314,7 +2314,7 @@ class UIController {
             } else if (e.key === 'Tab') {
                 e.preventDefault();
                 const partial = input.value.toLowerCase();
-                const commands = ['help', 'clear', 'ping', 'ipconfig', 'status', 'exit', 'cls', 'dir', 'systeminfo', 'netstat', 'ifconfig', 'ip addr'];
+                const commands = ['help', 'clear', 'ping', 'ipconfig', 'status', 'exit', 'cls', 'systeminfo', 'netstat', 'ifconfig', 'ip addr'];
                 const matches = commands.filter(cmd => cmd.startsWith(partial));
                 
                 if (matches.length === 1) {
@@ -2360,8 +2360,6 @@ class UIController {
         } else if (cmd === 'exit') {
             const closeBtn = document.getElementById('terminal-close');
             if (closeBtn) closeBtn.click();
-        } else if (cmd === 'dir') {
-            this.showDirectory(output);
         } else if (cmd === 'systeminfo') {
             this.showSystemInfo(nf, output);
         } else if (cmd === 'netstat') {
