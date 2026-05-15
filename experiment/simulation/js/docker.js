@@ -2864,6 +2864,25 @@ networks:
     }
 
     /**
+     * Returns true if the oaiworkshop network should be considered active.
+     * True when the flag is set OR when NFs are present in the dataStore.
+     */
+    isOaiNetworkActive() {
+        if (this.oaiWorkshopNetworkExists) return true;
+        const nfs = window.dataStore?.getAllNFs() || [];
+        const coreNFs = nfs.filter(nf => nf.type !== 'gNB' && nf.type !== 'UE');
+        if (coreNFs.length > 0) {
+            // Sync the flag so subsequent checks are consistent
+            this.oaiWorkshopNetworkExists = true;
+            if (!this.oaiWorkshopCreatedTime) {
+                this.oaiWorkshopCreatedTime = Date.now();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Docker network ls command
      * @param {HTMLElement} output - Output element
      */
@@ -2873,7 +2892,7 @@ networks:
         this.addTerminalLine(output, '902c1fcc4369   host          host      local', 'info');
         this.addTerminalLine(output, '0c712814bbb0   none          null      local', 'info');
 
-        if (this.oaiWorkshopNetworkExists) {
+        if (this.isOaiNetworkActive()) {
             this.addTerminalLine(output, `${this.oaiWorkshopNetworkId}   oaiworkshop   bridge    local`, 'success');
         }
     }
@@ -2891,7 +2910,7 @@ networks:
         } else if (networkName === 'none') {
             this.inspectNoneNetwork(output);
         } else if (networkName === 'oaiworkshop') {
-            if (this.oaiWorkshopNetworkExists) {
+            if (this.isOaiNetworkActive()) {
                 this.inspectOAIWorkshopNetwork(output);
             } else {
                 this.addTerminalLine(output, `Error: No such network: ${networkName}`, 'error');
