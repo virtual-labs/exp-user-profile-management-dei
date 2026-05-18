@@ -230,6 +230,11 @@ class PingManager {
      * @returns {boolean} True if reachable
      */
     isTargetReachable(sourceNf, targetIP, interfaceName = null) {
+        // Allow NF to ping its own IP (always reachable)
+        if (sourceNf.config.ipAddress === targetIP) {
+            return true;
+        }
+
         // SPECIAL CASE: Internet connectivity (8.8.8.8) via tun interface
         if (sourceNf.type === 'UE' && interfaceName && sourceNf.config?.tunInterface) {
             // UE can reach internet through tun interface if PDU session is established

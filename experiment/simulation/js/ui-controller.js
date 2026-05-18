@@ -2279,11 +2279,18 @@ class UIController {
                     // Display command with prompt (like real terminal)
                     this.addTerminalLine(output, `${nf.name.toLowerCase()}@~$ ${command}`, 'command');
                     
-                    // Clear input
+                    // Clear input and disable it during command execution
                     input.value = '';
+                    input.disabled = true;
+                    input.style.opacity = '0.5';
 
                     // Process command
                     await this.processWindowsCommand(nf, command, output);
+                    
+                    // Re-enable input after command completes
+                    input.disabled = false;
+                    input.style.opacity = '1';
+                    input.focus();
                     
                     // Scroll to bottom after command execution
                     scrollToBottom();
@@ -2728,6 +2735,9 @@ class UIController {
         // Build list of allowed targets
         const allowedTargets = [];
         
+        // 0. Allow NF to ping its own IP
+        allowedTargets.push(`${nf.config.ipAddress} - ${nf.name} (self)`);
+        
         // 1. Internet IP (8.8.8.8) - only via tun interface
         if (interfaceName && nf.config.tunInterface) {
             allowedTargets.push('8.8.8.8 - Google DNS (Internet)');
@@ -2760,6 +2770,7 @@ class UIController {
         
         // Check if target is in allowed list
         const allowedIPs = [
+            nf.config.ipAddress, // Allow self-ping
             '8.8.8.8',  // Internet
             '10.0.0.1', // Gateway
         ];
@@ -2825,6 +2836,11 @@ class UIController {
      * @returns {boolean} True if reachable
      */
     isLinuxPingReachable(nf, targetIP, interfaceName) {
+        // Allow NF to ping its own IP (always reachable)
+        if (nf.config.ipAddress === targetIP) {
+            return true;
+        }
+
         // Internet connectivity (8.8.8.8) via tun interface
         if (interfaceName && nf.config.tunInterface) {
             if (targetIP === '8.8.8.8' || targetIP === '8.8.4.4') {
@@ -3213,6 +3229,11 @@ class UIController {
     }
 
     isTargetReachable(sourceNf, targetIP) {
+        // Allow NF to ping its own IP (always reachable)
+        if (sourceNf.config.ipAddress === targetIP) {
+            return true;
+        }
+
         const allNFs = window.dataStore?.getAllNFs() || [];
         const targetNf = allNFs.find(nf => nf.config.ipAddress === targetIP);
         
