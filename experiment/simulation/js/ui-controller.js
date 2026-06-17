@@ -877,6 +877,22 @@ class UIController {
             });
         }
 
+        // IP input validation listener
+        const ipInput = document.getElementById('config-ip');
+        if (ipInput) {
+            ipInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9.]/g, '');
+            });
+        }
+
+        // Port input validation listener
+        const portInput = document.getElementById('config-port');
+        if (portInput) {
+            portInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            });
+        }
+
         // Start button handler
         const startBtn = document.getElementById('btn-start-nf');
         startBtn.addEventListener('click', () => {
@@ -1063,6 +1079,25 @@ class UIController {
                     }
                 }
             });
+        }
+
+        // Add IP and port input validation listeners only for non-UE types
+        if (nf.type !== 'UE') {
+            // IP input validation listener
+            const ipInput = document.getElementById('config-ip');
+            if (ipInput) {
+                ipInput.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^0-9.]/g, '');
+                });
+            }
+
+            // Port input validation listener
+            const portInput = document.getElementById('config-port');
+            if (portInput) {
+                portInput.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                });
+            }
         }
 
         // Save button handler
@@ -1263,7 +1298,13 @@ class UIController {
 
         // Validate IP address format
         if (!this.isValidIP(ipAddress)) {
-            alert('❌ Invalid IP address format!\n\nPlease enter a valid IP address (e.g., 192.168.1.20)');
+            alert('❌ Invalid IP address!\n\nPlease enter a valid IP address:\n- Format: x.x.x.x (e.g., 192.168.1.20)\n- First octet cannot be 0 (0.0.0.0 is not allowed)\n- Only dots allowed as separators, no other special characters\n- Range: 1.0.0.0 to 255.255.255.255');
+            return;
+        }
+
+        // Validate port
+        if (!this.isValidPort(port)) {
+            alert('❌ Invalid port number!\n\nPlease enter a valid port number:\n- Must be 4-6 numeric digits\n- No special characters or letters allowed\n- Example: 8080, 9999, 10000');
             return;
         }
 
@@ -1522,7 +1563,13 @@ class UIController {
 
         // Validate IP address format
         if (!this.isValidIP(ipAddress)) {
-            alert('❌ Invalid IP address format!\n\nPlease enter a valid IP address (e.g., 192.168.1.20)');
+            alert('❌ Invalid IP address!\n\nPlease enter a valid IP address:\n- Format: x.x.x.x (e.g., 192.168.1.20)\n- First octet cannot be 0 (0.0.0.0 is not allowed)\n- Only dots allowed as separators, no other special characters\n- Range: 1.0.0.0 to 255.255.255.255');
+            return;
+        }
+
+        // Validate port
+        if (!this.isValidPort(port)) {
+            alert('❌ Invalid port number!\n\nPlease enter a valid port number:\n- Must be 4-6 numeric digits\n- No special characters or letters allowed\n- Example: 8080, 9999, 10000');
             return;
         }
 
@@ -3332,7 +3379,20 @@ class UIController {
      */
     isValidIP(ip) {
         const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-        return ipRegex.test(ip);
+        if (!ipRegex.test(ip)) {
+            return false;
+        }
+        const octets = ip.split('.').map(Number);
+        if (octets[0] === 0) {
+            return false;
+        }
+        return true;
+    }
+
+    isValidPort(port) {
+        const portStr = String(port);
+        const portRegex = /^\d{4,6}$/;
+        return portRegex.test(portStr);
     }
 
     /**
