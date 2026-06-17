@@ -7,7 +7,7 @@ Click on the **Terminal button** to open the terminal then from the project root
 docker compose -f docker-compose.yml up -d
 ```
 
-This command brings up all the core 5G network components — including AMF, SMF, UPF, NRF, and others — in detached mode. Running it in detached mode means all containers start quietly in the background, so your terminal stays free and you don't have to keep a session open just to keep things running.
+Executes Docker Compose to deploy core 5G network components (AMF, SMF, UPF, NRF, and others) in detached mode. Detached mode runs containers in the background, releasing the terminal session.
 
 <img src="images/prd1.png" width="90%">
 
@@ -19,7 +19,7 @@ This command brings up all the core 5G network components — including AMF, SMF
 docker compose -f docker-compose-gnb.yml up -d
 ```
 
-This spins up the gNB (next-generation NodeB), which acts as the 5G radio access point. Once it's up, it automatically reaches out and registers itself with the core network, so the two sides are connected and ready to handle UE traffic.
+Deploys the gNB (next-generation NodeB), the 5G radio access point. Upon startup, the gNB automatically registers with the core network, establishing connectivity for UE traffic.
 
 <img src="images/prd2.png" width="90%">
 
@@ -31,7 +31,7 @@ This spins up the gNB (next-generation NodeB), which acts as the 5G radio access
 docker compose -f docker-compose-ue.yml up -d
 ```
 
-This starts the UE (User Equipment) containers and attaches them to the gNB. Think of this as simulating the actual devices — phones, IoT sensors, etc. — that connect to your 5G network. Once attached, they'll go through the full registration and session setup flow.
+Starts the UE (User Equipment) containers and attaches them to the gNB. The UE simulates devices (phones, IoT sensors) connecting to the 5G network. The containers perform the full registration and session setup flow.
 
 <img src="images/prd3.png" width="90%">
 
@@ -48,7 +48,7 @@ This starts the UE (User Equipment) containers and attaches them to the gNB. Thi
 docker ps
 ```
 
-A quick sanity check. This lists all currently running Docker containers along with their status, ports, and names. If everything deployed correctly, you should see all your core network, gNB, and UE containers showing a healthy `Up` status here.
+Lists all running Docker containers with status, ports, and names. A successful deployment shows core network, gNB, and UE containers with Up status.
 
 <img src="images/prd5.png" width="90%">
 
@@ -60,7 +60,7 @@ A quick sanity check. This lists all currently running Docker containers along w
 watch docker compose -f docker-compose.yml ps -a
 ```
 
-This keeps a live, auto-refreshing view of all your core network containers. It's handy when you want to watch the network stabilize after deployment or catch any container that unexpectedly exits. The `-a` flag ensures you see all containers, including ones that may have stopped.
+Provides a continuously refreshing view of core network container status. The -a flag displays all containers, including stopped ones. Used for monitoring stabilization and detecting unexpected exits.
 
 <img src="images/prd6.png" width="90%">
 
@@ -71,9 +71,9 @@ This keeps a live, auto-refreshing view of all your core network containers. It'
 1. Add each required Network Function (NF) individually from the Network Function Panel.
 2. Provide the necessary configuration parameters in the Configuration Panel on the left.
 3. Start each Network Function after configuration.
-4. Repeat the above steps until all required Network Functions are successfully deployed and running.
+4. Repeat until all required Network Functions are deployed and running.
 
-This approach gives you full control over each Network Function. It's useful when you want to deploy only specific components, tweak individual configurations, or troubleshoot a particular NF without touching the rest of the network.
+Provides granular control over each Network Function. Enables selective deployment, individual configuration adjustments, and isolated troubleshooting.
 
 <img src="images/prd7.png" width="90%">
 
@@ -84,7 +84,7 @@ This approach gives you full control over each Network Function. It's useful whe
 1. Click the One-Click Deploy button on the top toolbar.
 2. Confirm the deployment when prompted.
 
-This is the fastest way to get a full 5G core up and running. The system handles everything for you — clearing old topology, deploying components in the right order, and wiring up all the connections. Great for demos, fresh environments, or when you just want things to work without the manual steps.
+Automates full 5G core deployment: clears existing topology, deploys components in sequence, and establishes interconnections. Recommended for demos, fresh environments, or rapid setup without manual intervention.
 
 <img src="images/prd8.png" width="90%">
 
@@ -130,7 +130,7 @@ Before a UE can connect, its subscription data needs to exist in the UDR (Unifie
 2. Save the updated configuration.
 3. A notification is displayed confirming that the changes have been saved successfully.
 
-This is where you fine-tune how a UE behaves on the network. The DNN (Data Network Name) essentially tells the core which data network to route the UE's traffic through — so if you're testing internet connectivity, make sure it's set to `internet` here before starting the UE.
+Configures UE behavior parameters. The DNN (Data Network Name) specifies the target data network for traffic routing. For internet connectivity testing, set DNN to internet before starting the UE.
 
 <img src="images/prd11.png" width="90%">
 
@@ -144,7 +144,7 @@ This is where you fine-tune how a UE behaves on the network. The DNN (Data Netwo
 4. Start the UE.
 5. Verify that the UE registers and operates successfully within the network.
 
-This is the final step — actually bringing the UE online. The configuration you enter here must match what's stored in the UDR exactly, otherwise the authentication and registration will fail. Once started, a successfully registered UE will show an active PDU session, confirming it's connected and passing traffic through the 5G core.
+Brings the UE online. The configuration must exactly match the UDR data; mismatches cause authentication and registration failure. A successful registration results in an active PDU session, indicating connectivity and traffic flow through the 5G core.
 
 <img src="images/prd12.png" width="90%">
 

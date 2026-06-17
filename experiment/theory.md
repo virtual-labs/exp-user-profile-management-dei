@@ -51,7 +51,7 @@ Thus, subscriber profile management is fundamental to 5G Core operation.
 ### 3.1 What is UDM? (Unified Data Management)
 UDM is like the central manager or brain that knows how subscriber data should be accessed and processed.
 
-#### UDM Responsibilities (Very Detailed):
+#### UDM Responsibilities:
 
 **A. Authentication & Security**
 * Generates 5G-AKA authentication vectors
@@ -91,7 +91,7 @@ UDM is like the central manager or brain that knows how subscriber data should b
 ### 3.2 What is UDR? (Unified Data Repository)
 UDR is the central database that stores all subscriber information permanently.
 
-- #### UDR Responsibilities (In Depth):
+- #### UDR Responsibilities:
 
 **A. Persistent Storage**
 Stores:
@@ -131,7 +131,7 @@ UDR is built to handle millions of subscribers with extremely high reliability.
 
 ## 4. Relationship Between UDM and UDR
 
-### 4.1 Relationship Between UDM and UDR (Very Clear)
+### 4.1 Relationship Between UDM and UDR
 The relationship is very simple:
 
 * **UDR stores the data**
