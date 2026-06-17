@@ -1,0 +1,277 @@
+{
+  "version": 2.0,
+  "filters": {
+    "difficulty": ["beginner", "intermediate"]
+  },
+  "questions": [
+    {
+      "question": "Q1. First step for deployment?",
+      "answers": {
+        "a": "Manual select",
+        "b": "One-Click Deploy",
+        "c": "Configure gNB",
+        "d": "Start UE"
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Correct.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q2. First deployed component?",
+      "answers": {
+        "a": "AMF",
+        "b": "NRF",
+        "c": "Service Bus",
+        "d": "UPF"
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Incorrect.",
+        "c": "Correct.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q3. Which is NOT deployed automatically?",
+      "answers": {
+        "a": "AUSF",
+        "b": "PCF",
+        "c": "gNB",
+        "d": "UDR"
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Incorrect.",
+        "c": "Correct.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q4. Deployment success visualization?",
+      "answers": {
+        "a": "Instant load",
+        "b": "Sequential appearance",
+        "c": "Logs only",
+        "d": "Empty"
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Correct.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q5. gNB requires?",
+      "answers": {
+        "a": "DNN",
+        "b": "IP + Port",
+        "c": "SUPI",
+        "d": "Bus"
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Correct.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q6. UE list viewed via?",
+      "answers": {
+        "a": "Start UE",
+        "b": "UDR",
+        "c": "gNB",
+        "d": "Bus"
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Correct.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q7. Modify DNN where?",
+      "answers": {
+        "a": "UE",
+        "b": "AMF",
+        "c": "UDR",
+        "d": "gNB"
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Incorrect.",
+        "c": "Correct.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q8. Update success confirmed by?",
+      "answers": {
+        "a": "Restart",
+        "b": "Notification",
+        "c": "Refresh",
+        "d": "Disconnect"
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Correct.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q9. Why match UE + UDR?",
+      "answers": {
+        "a": "Signal",
+        "b": "Registration",
+        "c": "Load",
+        "d": "Speed"
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Correct.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q10. UE success indicator?",
+      "answers": {
+        "a": "UI close",
+        "b": "Active registered",
+        "c": "UDR empty",
+        "d": "Restart"
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Correct.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q11. Why Service Bus first?",
+      "answers": {
+        "a": "Routing foundation",
+        "b": "UI requirement",
+        "c": "UE config",
+        "d": "Security"
+      },
+      "correctAnswer": "a",
+      "difficulty": "intermediate",
+      "explanations": {
+        "a": "Correct.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q12. Sequential NF deployment ensures?",
+      "answers": {
+        "a": "Dependency resolution",
+        "b": "Speed",
+        "c": "UI sync",
+        "d": "UE delay"
+      },
+      "correctAnswer": "a",
+      "difficulty": "intermediate",
+      "explanations": {
+        "a": "Correct.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q13. gNB deployed later because?",
+      "answers": {
+        "a": "Needs core ready",
+        "b": "UI reason",
+        "c": "Delay needed",
+        "d": "Random"
+      },
+      "correctAnswer": "a",
+      "difficulty": "intermediate",
+      "explanations": {
+        "a": "Correct.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q14. UDR update effect?",
+      "answers": {
+        "a": "Immediate sync",
+        "b": "No effect",
+        "c": "Manual only",
+        "d": "Restart"
+      },
+      "correctAnswer": "a",
+      "difficulty": "intermediate",
+      "explanations": {
+        "a": "Correct.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q15. Registration failure due to mismatch occurs at?",
+      "answers": {
+        "a": "AMF validation",
+        "b": "UPF",
+        "c": "PCF",
+        "d": "Bus"
+      },
+      "correctAnswer": "a",
+      "difficulty": "intermediate",
+      "explanations": {
+        "a": "Correct.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    }
+  ]
+}
