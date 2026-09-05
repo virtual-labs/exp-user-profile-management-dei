@@ -59,18 +59,18 @@
     },
 
     {
-      "question": "Q4. Deployment success visualization?",
+      "question": "Q4. Which service-based interface does UDM use to request subscriber data from UDR?",
       "answers": {
-        "a": "Instant load",
-        "b": "Sequential appearance",
-        "c": "Logs only",
-        "d": "Empty"
+        "a": "Nudr",
+        "b": "Namf",
+        "c": "Nsmf",
+        "d": "Nnrf"
       },
-      "correctAnswer": "b",
+      "correctAnswer": "a",
       "difficulty": "beginner",
       "explanations": {
-        "a": "Incorrect.",
-        "b": "Correct.",
+        "a": "Correct.",
+        "b": "Incorrect.",
         "c": "Incorrect.",
         "d": "Incorrect."
       }
@@ -149,19 +149,19 @@
     },
 
     {
-      "question": "Q9. Why match UE + UDR?",
+      "question": "Q9. What HTTP status does UDM typically return to a consumer NF when UDR does not respond in time?",
       "answers": {
-        "a": "Signal",
-        "b": "Registration",
-        "c": "Load",
-        "d": "Speed"
+        "a": "200 OK",
+        "b": "301 Redirect",
+        "c": "503 Service Unavailable",
+        "d": "204 No Content"
       },
-      "correctAnswer": "b",
-      "difficulty": "beginner",
+      "correctAnswer": "c",
+      "difficulty": "intermediate",
       "explanations": {
         "a": "Incorrect.",
-        "b": "Correct.",
-        "c": "Incorrect.",
+        "b": "Incorrect.",
+        "c": "Correct.",
         "d": "Incorrect."
       }
     },
