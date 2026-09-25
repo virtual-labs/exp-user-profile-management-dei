@@ -1,5 +1,3 @@
-> **Audio Explanation:** For a comprehensive understanding of these theoretical concepts, you can listen on YouTube. 
-> [**Click here to listen the audio**](https://youtu.be/H5OJX4uok-0)
 > **Audio Explanations:** For a more comprehensive understanding of these theoretical concepts, supplementary audio guides are available on YouTube.
 > 
 > - [**Listen in English**](https://youtu.be/Sl7OWA0wTFo)
@@ -31,7 +29,7 @@ The 5G Core is built on a service-based architecture, meaning each network funct
 
 <div align="center">
   <img src="images/fig-1.svg" alt="5G Core Network Architecture" width="60%">
-  <p><em>Figure 1: 5G Core Network architecture, highlighting the central role of UDM and UDR in managing subscriber profiles.</em></p>
+  <p><em>Figure 1: 5G Core Network architecture.</em></p>
 </div>
 
 Specifically, different network functions depend on this subscriber data for their core operations:
