@@ -1,0 +1,266 @@
+{
+  "version": 2.0,
+  "filters": {
+    "difficulty": ["beginner", "intermediate"]
+  },
+  "questions": [
+    {
+      "question": "Q1. What is the primary role of the Unified Data Management (UDM) in the 5G Core network?",
+      "answers": {
+        "a": "To select slice instance",
+        "b": "To store all data permanently",
+        "c": "To process subscriber data and authentication logic",
+        "d": "To assign IP addresses"
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Incorrect.",
+        "c": "Correct.",
+        "d": "Incorrect."
+      }
+    },
+    {
+      "question": "Q2. During registration, what is the correct AMF data request flow?",
+      "answers": {
+        "a": "AMF → UDM → UDR",
+        "b": "UDM → AMF",
+        "c": "AMF → UDR → UDM",
+        "d": "Parallel queries"
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Correct.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+    {
+      "question": "Q3. What does SM Data contain?",
+      "answers": {
+        "a": "Slices",
+        "b": "DNN and session rules",
+        "c": "Mobility rules",
+        "d": "Auth keys"
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Correct.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+    {
+      "question": "Q4. What happens if authentication key changes?",
+      "answers": {
+        "a": "Session fails",
+        "b": "Speed reduces",
+        "c": "Authentication fails",
+        "d": "Slice changes"
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Incorrect.",
+        "c": "Correct.",
+        "d": "Incorrect."
+      }
+    },
+    {
+      "question": "Q5. Who generates 5G-AKA vectors?",
+      "answers": {
+        "a": "UDR",
+        "b": "AMF",
+        "c": "UDM",
+        "d": "AUSF"
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Incorrect.",
+        "c": "Correct.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q6. What is the role of UDR?",
+      "answers": {
+        "a": "Storage",
+        "b": "Decode SUCI",
+        "c": "Policy generation",
+        "d": "Notifications"
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Correct.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+    {
+      "question": "Q7. Which NF queries UDM for DNN validation?",
+      "answers": {
+        "a": "AMF",
+        "b": "NSSF",
+        "c": "SMF",
+        "d": "AUSF"
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Incorrect.",
+        "c": "Correct.",
+        "d": "Incorrect."
+      }
+    },
+    {
+      "question": "Q8. What happens if subscription is BARRED?",
+      "answers": {
+        "a": "No registration",
+        "b": "Limited access",
+        "c": "Auth fail",
+        "d": "Only data blocked"
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Correct.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+    {
+      "question": "Q9. SUCI vs SUPI relation?",
+      "answers": {
+        "a": "Different IDs",
+        "b": "Different networks",
+        "c": "Temporary vs permanent",
+        "d": "Encrypted SUPI"
+      },
+      "correctAnswer": "d",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Correct."
+      }
+    },
+
+    {
+      "question": "Q10. How do AMF/SMF get updates?",
+      "answers": {
+        "a": "Subscription notifications",
+        "b": "Re-register",
+        "c": "Polling",
+        "d": "Broadcast"
+      },
+      "correctAnswer": "a",
+      "difficulty": "intermediate",
+      "explanations": {
+        "a": "Correct.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+    {
+      "question": "Q11. Missing DNN causes failure in which data?",
+      "answers": {
+        "a": "SM Data",
+        "b": "Auth",
+        "c": "Slice",
+        "d": "Mobility"
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Correct.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+    {
+      "question": "Q12. UDR supports which operations?",
+      "answers": {
+        "a": "CRUD",
+        "b": "Policy",
+        "c": "Auth",
+        "d": "Notification"
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Correct.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+
+    {
+      "question": "Q13. What does slice subscription include?",
+      "answers": {
+        "a": "S-NSSAI list",
+        "b": "IDs",
+        "c": "Keys",
+        "d": "QoS"
+      },
+      "correctAnswer": "a",
+      "difficulty": "beginner",
+      "explanations": {
+        "a": "Correct.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+    {
+      "question": "Q14. After SUCI, AMF does what?",
+      "answers": {
+        "a": "Send to SMF",
+        "b": "Query UDM",
+        "c": "Accept UE",
+        "d": "Call PCF"
+      },
+      "correctAnswer": "b",
+      "difficulty": "intermediate",
+      "explanations": {
+        "a": "Incorrect.",
+        "b": "Correct.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    },
+    {
+      "question": "Q15. Why separate UDM and UDR?",
+      "answers": {
+        "a": "Logic vs storage",
+        "b": "Remove AUSF",
+        "c": "Reduce hardware",
+        "d": "Limit access"
+      },
+      "correctAnswer": "a",
+      "difficulty": "intermediate",
+      "explanations": {
+        "a": "Correct.",
+        "b": "Incorrect.",
+        "c": "Incorrect.",
+        "d": "Incorrect."
+      }
+    }
+  ]
+}

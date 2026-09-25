@@ -1,0 +1,65 @@
+
+/home/runner/work/exp-user-profile-management-dei/exp-user-profile-management-dei/experiment/simulation/js/app.js
+  51:32  warning  'DataStore' is not defined          no-undef
+  54:32  warning  'LogEngine' is not defined          no-undef
+  57:32  warning  'NFManager' is not defined          no-undef
+  60:40  warning  'ConnectionManager' is not defined  no-undef
+  63:33  warning  'BusManager' is not defined         no-undef
+  66:34  warning  'PingManager' is not defined        no-undef
+  69:40  warning  'DeploymentManager' is not defined  no-undef
+  72:37  warning  'CanvasRenderer' is not defined     no-undef
+  75:35  warning  'UIController' is not defined       no-undef
+
+/home/runner/work/exp-user-profile-management-dei/exp-user-profile-management-dei/experiment/simulation/js/bus-manager.js
+  8:7  warning  'BusManager' is defined but never used  no-unused-vars
+
+/home/runner/work/exp-user-profile-management-dei/exp-user-profile-management-dei/experiment/simulation/js/canvas-renderer.js
+   15:7   warning  'CanvasRenderer' is defined but never used  no-unused-vars
+  607:19  warning  'e' is defined but never used               no-unused-vars
+
+/home/runner/work/exp-user-profile-management-dei/exp-user-profile-management-dei/experiment/simulation/js/connection-manager.js
+  15:7  warning  'ConnectionManager' is defined but never used  no-unused-vars
+
+/home/runner/work/exp-user-profile-management-dei/exp-user-profile-management-dei/experiment/simulation/js/data-store.js
+  15:7  warning  'DataStore' is defined but never used  no-unused-vars
+
+/home/runner/work/exp-user-profile-management-dei/exp-user-profile-management-dei/experiment/simulation/js/deployment-manager.js
+  14:7   warning  'DeploymentManager' is defined but never used  no-unused-vars
+  35:15  warning  'totalNFs' is assigned a value but never used  no-unused-vars
+
+/home/runner/work/exp-user-profile-management-dei/exp-user-profile-management-dei/experiment/simulation/js/docker.js
+  1419:15  warning  'totalNFs' is assigned a value but never used        no-unused-vars
+  1420:15  warning  'alreadyRunning' is assigned a value but never used  no-unused-vars
+  1604:15  warning  'ueTypes' is assigned a value but never used         no-unused-vars
+  1890:29  warning  'index' is defined but never used                    no-unused-vars
+  2188:23  warning  'mapped' is assigned a value but never used          no-unused-vars
+  2745:29  warning  'terminalModal' is defined but never used            no-unused-vars
+
+/home/runner/work/exp-user-profile-management-dei/exp-user-profile-management-dei/experiment/simulation/js/log-engine.js
+   15:7   warning  'LogEngine' is defined but never used                 no-unused-vars
+  522:15  warning  'ranUENGAPId' is assigned a value but never used      no-unused-vars
+  523:15  warning  'amfUENGAPId' is assigned a value but never used      no-unused-vars
+  672:15  warning  'teidGNB' is assigned a value but never used          no-unused-vars
+  673:15  warning  'teidUPF' is assigned a value but never used          no-unused-vars
+  674:15  warning  'sequenceNum' is assigned a value but never used      no-unused-vars
+  730:19  warning  'totalThroughput' is assigned a value but never used  no-unused-vars
+
+/home/runner/work/exp-user-profile-management-dei/exp-user-profile-management-dei/experiment/simulation/js/nf-manager.js
+  15:7  warning  'NFManager' is defined but never used  no-unused-vars
+
+/home/runner/work/exp-user-profile-management-dei/exp-user-profile-management-dei/experiment/simulation/js/ping-manager.js
+   14:7   warning  'PingManager' is defined but never used      no-unused-vars
+  550:21  warning  'pingId' is assigned a value but never used  no-unused-vars
+
+/home/runner/work/exp-user-profile-management-dei/exp-user-profile-management-dei/experiment/simulation/js/ui-controller.js
+    16:7   warning  'UIController' is defined but never used          no-unused-vars
+   333:48  warning  'data' is defined but never used                  no-unused-vars
+   732:15  warning  'nfDef' is assigned a value but never used        no-unused-vars
+   736:15  warning  'defaultName' is assigned a value but never used  no-unused-vars
+  1383:36  warning  'nfType' is defined but never used                no-unused-vars
+  2401:15  warning  'args' is assigned a value but never used         no-unused-vars
+  3406:15  warning  'cmd' is assigned a value but never used          no-unused-vars
+  3712:5   warning  Duplicate name 'delay'                            no-dupe-class-members
+
+✖ 40 problems (0 errors, 40 warnings)
+
